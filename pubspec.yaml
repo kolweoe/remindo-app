@@ -55,6 +55,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   cupertino_icons: ^1.0.8
 
+dependency_overrides:
+  path_provider_android: 2.2.15
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
