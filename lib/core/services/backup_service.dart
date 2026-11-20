@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import '../db/database_helper.dart';
 
 class BackupService {
@@ -9,7 +9,7 @@ class BackupService {
 
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
-  /// Export remindo_local.db by temporarily closing DB and sharing via system share sheet
+  /// Export remindo_local.db by temporarily closing DB and copying to backup file
   Future<bool> exportDatabase() async {
     try {
       final dbPath = await _dbHelper.getDatabasePath();
@@ -22,10 +22,9 @@ class BackupService {
       // Close DB connection to flush WAL and avoid locks
       await _dbHelper.close();
 
-      await Share.shareXFiles(
-        [XFile(dbPath, mimeType: 'application/x-sqlite3', name: 'remindo_backup.db')],
-        text: 'Backup Database Remindo (Offline)',
-      );
+      final extDir = await getExternalStorageDirectory() ?? await getApplicationDocumentsDirectory();
+      final backupPath = '${extDir.path}/remindo_backup.db';
+      await file.copy(backupPath);
 
       // Re-initialize DB
       await _dbHelper.database;
