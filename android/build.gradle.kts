@@ -16,12 +16,6 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
-    tasks.matching { it.name.contains("AarMetadata") }.configureEach {
-        enabled = false
-    }
-}
-
-subprojects {
     project.evaluationDependsOn(":app")
 }
 
