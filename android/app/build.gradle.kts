@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.remindo.remindo_app"
-    compileSdk = 34
+    compileSdk = 36
     ndkVersion = "30.0.16248370"
 
     compileOptions {
