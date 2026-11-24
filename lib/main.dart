@@ -28,7 +28,7 @@ class RemindoApp extends StatelessWidget {
       title: 'Remindo',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      initialRoute: AppRouter.home,
+      initialRoute: AppRouter.root,
       onGenerateRoute: AppRouter.onGenerateRoute,
     );
   }

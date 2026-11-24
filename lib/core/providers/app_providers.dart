@@ -16,6 +16,11 @@ final walletDaoProvider = Provider<WalletDao>((ref) => WalletDao());
 final settingsDaoProvider = Provider<SettingsDao>((ref) => SettingsDao());
 
 // --- Hero Profile State ---
+final hasHeroProfileProvider = FutureProvider<bool>((ref) async {
+  final dao = ref.watch(heroDaoProvider);
+  return await dao.hasHeroProfile();
+});
+
 class HeroProfileNotifier extends StateNotifier<AsyncValue<HeroProfile>> {
   final HeroDao _dao;
   HeroProfileNotifier(this._dao) : super(const AsyncValue.loading()) {
@@ -32,17 +37,43 @@ class HeroProfileNotifier extends StateNotifier<AsyncValue<HeroProfile>> {
     }
   }
 
+  Future<void> createHero({
+    required String name,
+    required String starterAvatar,
+    required String focusGoal,
+  }) async {
+    try {
+      state = const AsyncValue.loading();
+      final hero = await _dao.createInitialHero(
+        name: name,
+        starterAvatar: starterAvatar,
+        focusGoal: focusGoal,
+      );
+      state = AsyncValue.data(hero);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
   Future<void> addRewards(int xp, int coins, {bool hasTimerBonus = false}) async {
     final updated = await _dao.addXpAndCoins(xp, coins, hasTimerBonus: hasTimerBonus);
     state = AsyncValue.data(updated);
   }
 
-  Future<bool> upgradeRoom() async {
-    final success = await _dao.upgradeRoom();
-    if (success) {
+  Future<UpgradeRoomResult> upgradeRoomTo(int targetLevel) async {
+    final result = await _dao.upgradeRoomTo(targetLevel);
+    if (result.success) {
       await loadProfile();
     }
-    return success;
+    return result;
+  }
+
+  Future<UpgradeRoomResult> upgradeRoom() async {
+    final result = await _dao.upgradeRoomNext();
+    if (result.success) {
+      await loadProfile();
+    }
+    return result;
   }
 
   Future<void> setCostume(String costumeId) async {

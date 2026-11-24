@@ -32,7 +32,7 @@ class DatabaseHelper {
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    // 1. hero_profile
+    // 1. hero_profile (Empty initially; populated upon Onboarding)
     await db.execute('''
       CREATE TABLE hero_profile (
         id INTEGER PRIMARY KEY CHECK (id = 1),
@@ -143,23 +143,8 @@ class DatabaseHelper {
       )
     ''');
 
-    // --- SEED INITIAL DATA ---
+    // --- SEED INITIAL DATA (System defaults) ---
     final now = DateTime.now().toIso8601String();
-
-    // Default Hero Profile
-    await db.insert('hero_profile', {
-      'id': 1,
-      'name': 'Hero Remindo',
-      'level': 1,
-      'xp': 0,
-      'xp_next': 100,
-      'coins': 150,
-      'streak_days': 1,
-      'room_level': 1,
-      'active_costume_id': 'hoodie_ungu',
-      'active_pet_id': 'cat_tuxedo',
-      'last_active_date': now.split('T').first,
-    });
 
     // Default Notification Settings
     await db.insert('notification_settings', {
@@ -184,6 +169,7 @@ class DatabaseHelper {
     await db.insert('app_settings', {'key': 'remote_catalog_version', 'value': '1'});
     await db.insert('app_settings', {'key': 'focus_music_enabled', 'value': 'true'});
     await db.insert('app_settings', {'key': 'app_theme', 'value': 'pixel_retro'});
+    await db.insert('app_settings', {'key': 'onboarding_completed', 'value': 'false'});
 
     // Starter Quests
     await db.insert('quests', {
