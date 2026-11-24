@@ -122,11 +122,11 @@ class _QuestHistoryScreenState extends ConsumerState<QuestHistoryScreen> {
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: AppColors.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
                             border: Border.all(color: AppColors.outline, width: 2),
                             boxShadow: const [
                               BoxShadow(
-                                color: Color(0x334A2E70),
+                                color: Color(0x334E2F1B),
                                 offset: Offset(0, 4),
                                 blurRadius: 0,
                               ),
@@ -267,11 +267,11 @@ class _QuestHistoryScreenState extends ConsumerState<QuestHistoryScreen> {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: AppColors.outline, width: 2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x334A2E70),
+            color: Color(0x334E2F1B),
             offset: Offset(0, 3),
             blurRadius: 0,
           ),
@@ -361,11 +361,11 @@ class _QuestHistoryScreenState extends ConsumerState<QuestHistoryScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: AppColors.outline, width: 2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x334A2E70),
+            color: Color(0x334E2F1B),
             offset: Offset(0, 3),
             blurRadius: 0,
           ),

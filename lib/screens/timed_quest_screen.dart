@@ -219,11 +219,11 @@ class _TimedQuestScreenState extends ConsumerState<TimedQuestScreen> {
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 color: AppColors.surfaceContainerLow,
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(AppRadius.lg),
                                 border: Border.all(color: AppColors.outline, width: 2),
                                 boxShadow: const [
                                   BoxShadow(
-                                    color: Color(0x474A2E70),
+                                    color: Color(0x474E2F1B),
                                     offset: Offset(0, 4),
                                     blurRadius: 0,
                                   ),
@@ -472,11 +472,11 @@ class _TimedQuestScreenState extends ConsumerState<TimedQuestScreen> {
                               padding: const EdgeInsets.all(14),
                               decoration: BoxDecoration(
                                 color: AppColors.surfaceContainerLow,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(AppRadius.lg),
                                 border: Border.all(color: AppColors.outline, width: 2),
                                 boxShadow: const [
                                   BoxShadow(
-                                    color: Color(0x474A2E70),
+                                    color: Color(0x474E2F1B),
                                     offset: Offset(0, 4),
                                     blurRadius: 0,
                                   ),

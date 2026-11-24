@@ -53,7 +53,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   String _getRoomImageAsset(int roomLevel) {
     switch (roomLevel) {
       case 1:
-        return 'assets/images/kamarkosong.jpg';
+        return 'assets/images/room_lv1_cozy_town.jpg';
       case 2:
         return 'assets/images/kamar_lv2_preview.jpg';
       case 3:
@@ -67,6 +67,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
       case 8:
       default:
         return 'assets/images/kamar_lv8_max.jpg';
+    }
+  }
+
+  String _getHeroAvatarAsset(HeroProfile hero) {
+    if (hero.activeCostumeId == 'chibi_female' ||
+        hero.activeCostumeId.contains('female') ||
+        hero.activeCostumeId.contains('perempuan')) {
+      return 'assets/images/hero_chibi_female.jpg';
+    } else if (hero.activeCostumeId == 'hoodie_ungu') {
+      return 'assets/images/karakter_hero_hoodie_ungu.jpg';
+    } else {
+      return 'assets/images/hero_chibi_male.jpg';
     }
   }
 
@@ -313,7 +325,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                                           border: Border.all(color: AppColors.outline, width: 2),
                                           boxShadow: const [
                                             BoxShadow(
-                                              color: Color(0x334A2E70),
+                                              color: Color(0x334E2F1B),
                                               offset: Offset(0, 4),
                                               blurRadius: 0,
                                             ),
@@ -321,7 +333,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                                         ),
                                         clipBehavior: Clip.antiAlias,
                                         child: Image.asset(
-                                          'assets/images/karakter_hero_hoodie_ungu.jpg',
+                                          _getHeroAvatarAsset(hero),
                                           fit: BoxFit.cover,
                                           errorBuilder: (ctx, err, stack) => const Icon(
                                             Icons.person,
@@ -340,7 +352,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                                           border: Border.all(color: AppColors.outline, width: 2),
                                           boxShadow: const [
                                             BoxShadow(
-                                              color: Color(0x334A2E70),
+                                              color: Color(0x334E2F1B),
                                               offset: Offset(0, 3),
                                               blurRadius: 0,
                                             ),
@@ -411,11 +423,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   decoration: BoxDecoration(
                                     color: AppColors.surfaceContainerLow,
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(AppRadius.lg),
                                     border: Border.all(color: AppColors.outline, width: 2),
                                     boxShadow: const [
                                       BoxShadow(
-                                        color: Color(0x474A2E70),
+                                        color: Color(0x474E2F1B),
                                         offset: Offset(0, 4),
                                         blurRadius: 0,
                                       ),

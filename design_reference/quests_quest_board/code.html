@@ -10,43 +10,43 @@ globalThis.tailwind.config = {
   theme: {
     extend: {
       colors: {
-        'primary': '#6D3FA8',
+        'primary': '#7A4B2A',
         'on-primary': '#FFFFFF',
-        'primary-container': '#8B5CF6',
-        'on-primary-container': '#0F0F0F',
-        'secondary': '#D9468F',
-        'on-secondary': '#161616',
-        'secondary-container': '#FCE7F3',
-        'on-secondary-container': '#831843',
+        'primary-container': '#F9B98F',
+        'on-primary-container': '#311300',
+        'secondary': '#2E7D32',
+        'on-secondary': '#FFFFFF',
+        'secondary-container': '#C8FFBF',
+        'on-secondary-container': '#002204',
         'accent': '#F59E0B',
-        'on-accent': '#2D1B4E',
+        'on-accent': '#311300',
         'accent-container': '#FEF3C7',
-        'on-accent-container': '#78350F',
-        'surface': '#F3E8FF',
-        'on-surface': '#2D1B4E',
+        'on-accent-container': '#4D2600',
+        'surface': '#F5E9D3',
+        'on-surface': '#2C160B',
         'surface-container-low': '#FFF8EB',
-        'on-surface-container-low': '#2D1B4E',
-        'surface-container': '#F7ECFF',
-        'on-surface-container': '#2D1B4E',
-        'surface-container-high': '#E9D5FF',
-        'on-surface-container-high': '#2D1B4E',
-        'surface-nav': '#4A2E70',
+        'on-surface-container-low': '#2C160B',
+        'surface-container': '#EFE0C6',
+        'on-surface-container': '#2C160B',
+        'surface-container-high': '#E2C89E',
+        'on-surface-container-high': '#2C160B',
+        'surface-nav': '#4E2F1B',
         'on-surface-nav': '#FFFFFF',
-        'outline': '#4A2E70',
-        'outline-variant': '#D8B4FE',
-        'success': '#2E8B57',
-        'on-success': '#0F0F0F',
+        'outline': '#4E2F1B',
+        'outline-variant': '#C9A679',
+        'success': '#2E7D32',
+        'on-success': '#FFFFFF',
         'warning': '#D97706',
         'on-warning': '#2A2A2A',
-        'error': '#DC2626',
+        'error': '#BA1A1A',
         'on-error': '#FFFFFF',
       },
       borderRadius: {
-        'sm': '6px',
-        'DEFAULT': '12px',
-        'md': '14px',
-        'lg': '18px',
-        'xl': '24px',
+        'sm': '0px',
+        'DEFAULT': '2px',
+        'md': '2px',
+        'lg': '4px',
+        'xl': '4px',
         'full': '9999px',
       },
       spacing: {
@@ -110,13 +110,13 @@ if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
       vertical-align: middle;
     }
     .pixel-shadow-sm {
-      box-shadow: 0 2px 0 #2D1B4E;
+      box-shadow: 2px 2px 0 #4E2F1B;
     }
     .pixel-shadow-md {
-      box-shadow: 0 4px 0 #2D1B4E;
+      box-shadow: 3px 3px 0 #4E2F1B;
     }
     .pixel-shadow-card {
-      box-shadow: 0 4px 0 rgba(74, 46, 112, 0.25);
+      box-shadow: 4px 4px 0 #4E2F1B;
     }
   </style>
 </head>
@@ -153,8 +153,9 @@ if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
 
       <!-- Ribbon Header -->
       <div class="flex items-center justify-center">
-        <div class="bg-primary text-on-primary border-2 border-outline rounded-lg px-unit-xl py-unit-sm pixel-shadow-md">
-          <h1 data-design-text-token="headline-lg" class="font-headline text-headline-lg text-center">Quest Board</h1>
+        <div class="bg-primary text-on-primary border-2 border-outline rounded-lg px-unit-xl py-unit-sm pixel-shadow-md flex items-center gap-unit-sm">
+          <span class="material-symbols-outlined text-accent text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">menu_book</span>
+          <h1 data-design-text-token="headline-lg" class="font-headline text-headline-lg text-center">Buku Quest</h1>
         </div>
       </div>
 

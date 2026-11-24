@@ -14,7 +14,7 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final TextEditingController _nameController = TextEditingController(text: 'Raka');
-  String _selectedStarter = 'Hero Hoodie Ungu'; // 'Hero Hoodie Ungu' or 'Pet Kucing Tuxedo'
+  String _selectedStarter = 'Laki-laki'; // 'Laki-laki' or 'Perempuan'
   String _selectedFocus = 'Kuliah'; // 'Kuliah', 'Keuangan', 'Kebiasaan'
   String? _feedbackMessage;
   bool _isLoading = false;
@@ -36,10 +36,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     setState(() {
       _isLoading = true;
-      _feedbackMessage = 'Selamat datang, $name! Masuk ke Kamar Lv.1 dengan $_selectedStarter...';
+      _feedbackMessage = 'Selamat datang, $name! Masuk ke Kamar Lv.1 dengan Hero $_selectedStarter...';
     });
 
-    final starterKey = _selectedStarter.contains('Kucing') ? 'cat_tuxedo' : 'hoodie_ungu';
+    final starterKey = _selectedStarter == 'Perempuan' ? 'chibi_female' : 'chibi_male';
 
     await ref.read(heroProfileProvider.notifier).createHero(
       name: name,
@@ -131,12 +131,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
                       border: Border.all(color: AppColors.outline, width: 2),
                       boxShadow: const [
                         BoxShadow(
-                          color: Color(0x474A2E70),
-                          offset: Offset(0, 6),
+                          color: Color(0x474E2F1B),
+                          offset: Offset(0, 4),
                           blurRadius: 0,
                         ),
                       ],
@@ -163,7 +163,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         Container(
                           decoration: BoxDecoration(
                             color: AppColors.surfaceContainer,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(AppRadius.md),
                             border: Border.all(color: AppColors.outline, width: 2),
                           ),
                           child: TextField(
@@ -199,29 +199,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            // Option 1: Hero Hoodie Ungu
+                            // Option 1: Hero Chibi Laki-laki
                             Expanded(
                               child: _buildStarterButton(
-                                label: 'Hero Ungu',
-                                imageAsset: 'assets/images/karakter_hero_hoodie_ungu.jpg',
-                                isSelected: _selectedStarter == 'Hero Hoodie Ungu',
+                                label: 'Laki-laki',
+                                imageAsset: 'assets/images/hero_chibi_male.jpg',
+                                isSelected: _selectedStarter == 'Laki-laki',
                                 onTap: () {
                                   setState(() {
-                                    _selectedStarter = 'Hero Hoodie Ungu';
+                                    _selectedStarter = 'Laki-laki';
                                   });
                                 },
                               ),
                             ),
                             const SizedBox(width: 10),
-                            // Option 2: Pet Kucing Tuxedo
+                            // Option 2: Hero Chibi Perempuan
                             Expanded(
                               child: _buildStarterButton(
-                                label: 'Kucing Pet',
-                                imageAsset: 'assets/images/pet_kucing_tuxedo.jpg',
-                                isSelected: _selectedStarter == 'Pet Kucing Tuxedo',
+                                label: 'Perempuan',
+                                imageAsset: 'assets/images/hero_chibi_female.jpg',
+                                isSelected: _selectedStarter == 'Perempuan',
                                 onTap: () {
                                   setState(() {
-                                    _selectedStarter = 'Pet Kucing Tuxedo';
+                                    _selectedStarter = 'Perempuan';
                                   });
                                 },
                               ),
@@ -325,7 +325,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
                               side: const BorderSide(color: AppColors.outline, width: 2),
                             ),
                             elevation: 0,
@@ -333,7 +333,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           ),
                           child: Ink(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
                               boxShadow: const [
                                 BoxShadow(
                                   color: AppColors.outline,
@@ -401,7 +401,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.accentContainer : AppColors.surfaceContainer,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(
             color: isSelected ? AppColors.outline : AppColors.outlineVariant,
             width: 2,
@@ -422,7 +422,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(AppRadius.standard),
                 border: Border.all(color: AppColors.outline, width: 2),
                 color: AppColors.surfaceContainerLow,
               ),
@@ -466,7 +466,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isSelected ? AppColors.primary : AppColors.surfaceContainer,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppRadius.standard),
             border: Border.all(color: AppColors.outline, width: 2),
             boxShadow: isSelected
                 ? const [

@@ -157,12 +157,12 @@ class _AddQuestScreenState extends ConsumerState<AddQuestScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
                       border: Border.all(color: AppColors.outline, width: 2),
                       boxShadow: const [
                         BoxShadow(
-                          color: Color(0x474A2E70),
-                          offset: Offset(0, 6),
+                          color: Color(0x474E2F1B),
+                          offset: Offset(0, 4),
                           blurRadius: 0,
                         ),
                       ],

@@ -143,7 +143,13 @@ class HeroDao {
       coins: 50, // Starter bonus from Penpot (+50 Coin)
       streakDays: 1,
       roomLevel: 1,
-      activeCostumeId: starterAvatar.contains('cat') ? 'cat_tuxedo' : 'hoodie_ungu',
+      activeCostumeId: (starterAvatar.contains('female') || starterAvatar.contains('perempuan'))
+          ? 'chibi_female'
+          : starterAvatar.contains('cat')
+              ? 'cat_tuxedo'
+              : starterAvatar.contains('hoodie')
+                  ? 'hoodie_ungu'
+                  : 'chibi_male',
       activePetId: 'cat_tuxedo',
       lastActiveDate: todayStr,
     );

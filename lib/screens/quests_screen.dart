@@ -95,7 +95,7 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                             decoration: BoxDecoration(
                               color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
                               border: Border.all(color: AppColors.outline, width: 2),
                               boxShadow: const [
                                 BoxShadow(
@@ -106,7 +106,7 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
                               ],
                             ),
                             child: Text(
-                              'Quest Board',
+                              'Buku Quest',
                               style: GoogleFonts.boogaloo(
                                 fontSize: 26,
                                 color: Colors.white,
@@ -179,7 +179,7 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
                             side: const BorderSide(color: AppColors.outline, width: 2),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
                             ),
                           ),
                         ),
@@ -351,11 +351,11 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isCompleted ? AppColors.accentContainer : AppColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: AppColors.outline, width: 2),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x334A2E70),
+            color: Color(0x334E2F1B),
             offset: Offset(0, 4),
             blurRadius: 0,
           ),
@@ -370,7 +370,7 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
             height: 46,
             decoration: BoxDecoration(
               color: isCompleted ? AppColors.surfaceContainerLow : AppColors.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(AppRadius.standard),
               border: Border.all(color: AppColors.outline, width: 2),
             ),
             child: Icon(

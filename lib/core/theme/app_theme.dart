@@ -1,49 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// Remindo Pixel RPG Design System tokens
+/// Remindo Pixel RPG Design System tokens (Warm Wood & Parchment Theme)
 /// Sourced exactly from `design_reference/DESIGN.md` & `tailwind.config.js`
 class AppColors {
-  // Primary (Royal Purple)
-  static const Color primary = Color(0xFF6D3FA8);
+  // Primary (Warm Wood Brown)
+  static const Color primary = Color(0xFF7A4B2A);
   static const Color onPrimary = Color(0xFFFFFFFF);
-  static const Color primaryContainer = Color(0xFF8B5CF6);
-  static const Color onPrimaryContainer = Color(0xFF0F0F0F);
+  static const Color primaryContainer = Color(0xFFF9B98F);
+  static const Color onPrimaryContainer = Color(0xFF311300);
 
-  // Secondary (Rose Pink)
-  static const Color secondary = Color(0xFFD9468F);
-  static const Color onSecondary = Color(0xFF161616);
-  static const Color secondaryContainer = Color(0xFFFCE7F3);
-  static const Color onSecondaryContainer = Color(0xFF831843);
+  // Secondary (Forest Green / RPG Quest Success)
+  static const Color secondary = Color(0xFF2E7D32);
+  static const Color onSecondary = Color(0xFFFFFFFF);
+  static const Color secondaryContainer = Color(0xFFC8FFBF);
+  static const Color onSecondaryContainer = Color(0xFF002204);
 
-  // Accent (Golden Amber)
+  // Accent (Warm Amber Gold)
   static const Color accent = Color(0xFFF59E0B);
-  static const Color onAccent = Color(0xFF2D1B4E);
+  static const Color onAccent = Color(0xFF311300);
   static const Color accentContainer = Color(0xFFFEF3C7);
-  static const Color onAccentContainer = Color(0xFF78350F);
+  static const Color onAccentContainer = Color(0xFF4D2600);
 
-  // Surfaces & Background
-  static const Color surface = Color(0xFFF3E8FF);
-  static const Color onSurface = Color(0xFF2D1B4E);
-  static const Color surfaceContainerLow = Color(0xFFFFF8EB); // Parchment cream
-  static const Color onSurfaceContainerLow = Color(0xFF2D1B4E);
-  static const Color surfaceContainer = Color(0xFFF7ECFF);
-  static const Color onSurfaceContainer = Color(0xFF2D1B4E);
-  static const Color surfaceContainerHigh = Color(0xFFE9D5FF);
-  static const Color onSurfaceContainerHigh = Color(0xFF2D1B4E);
-  static const Color surfaceNav = Color(0xFF4A2E70); // Deep plum navigation & HUD
+  // Surfaces & Background (Warm Parchment & Wood HUD)
+  static const Color surface = Color(0xFFF5E9D3); // Warm Parchment
+  static const Color onSurface = Color(0xFF2C160B); // Deep Wood Text
+  static const Color surfaceContainerLow = Color(0xFFFFF8EB); // Light Cream Parchment
+  static const Color onSurfaceContainerLow = Color(0xFF2C160B);
+  static const Color surfaceContainer = Color(0xFFEFE0C6); // Medium Parchment
+  static const Color onSurfaceContainer = Color(0xFF2C160B);
+  static const Color surfaceContainerHigh = Color(0xFFE2C89E); // High Parchment
+  static const Color onSurfaceContainerHigh = Color(0xFF2C160B);
+  static const Color surfaceNav = Color(0xFF4E2F1B); // Dark Wood HUD & Nav
   static const Color onSurfaceNav = Color(0xFFFFFFFF);
 
-  // Outline / Borders
-  static const Color outline = Color(0xFF4A2E70);
-  static const Color outlineVariant = Color(0xFFD8B4FE);
+  // Outline / Borders (Dark Wood)
+  static const Color outline = Color(0xFF4E2F1B);
+  static const Color outlineVariant = Color(0xFFC9A679);
 
   // Semantic Status
-  static const Color success = Color(0xFF2E8B57);
-  static const Color onSuccess = Color(0xFF0F0F0F);
+  static const Color success = Color(0xFF2E7D32);
+  static const Color onSuccess = Color(0xFFFFFFFF);
   static const Color warning = Color(0xFFD97706);
   static const Color onWarning = Color(0xFF2A2A2A);
-  static const Color error = Color(0xFFDC2626);
+  static const Color error = Color(0xFFBA1A1A);
   static const Color onError = Color(0xFFFFFFFF);
 }
 
@@ -136,11 +136,12 @@ class AppSpacing {
 }
 
 class AppRadius {
-  static const double sm = 6.0;
-  static const double standard = 12.0;
-  static const double md = 14.0;
-  static const double lg = 18.0;
-  static const double xl = 24.0;
+  // Pixelated Sharp / 0–4px Rounded Corners
+  static const double sm = 0.0;
+  static const double standard = 2.0;
+  static const double md = 2.0;
+  static const double lg = 4.0;
+  static const double xl = 4.0;
   static const double full = 9999.0;
 
   static BorderRadius get radiusSm => BorderRadius.circular(sm);
@@ -152,7 +153,7 @@ class AppRadius {
 }
 
 class AppShadows {
-  // Tactile Bottom-Offset Pixel RPG Shadows
+  // Stepped Pixel RPG Shadows with Dark Wood Outline
   static const BoxShadow pixel = BoxShadow(
     color: AppColors.outline,
     offset: Offset(0, 3),
@@ -171,10 +172,16 @@ class AppShadows {
     blurRadius: 0,
   );
 
-  static const BoxShadow card = BoxShadow(
-    color: Color(0x1F2D1B4E),
+  static const BoxShadow pixelCard = BoxShadow(
+    color: Color(0x474E2F1B),
     offset: Offset(0, 4),
-    blurRadius: 12,
+    blurRadius: 0,
+  );
+
+  static const BoxShadow card = BoxShadow(
+    color: Color(0x2E4E2F1B),
+    offset: Offset(0, 3),
+    blurRadius: 0,
   );
 }
 

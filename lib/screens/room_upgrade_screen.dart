@@ -31,7 +31,7 @@ class _RoomUpgradeScreenState extends ConsumerState<RoomUpgradeScreen> {
   String _getRoomImage(int level) {
     switch (level) {
       case 1:
-        return 'assets/images/kamarkosong.jpg';
+        return 'assets/images/room_lv1_cozy_town.jpg';
       case 2:
         return 'assets/images/kamar_lv2_preview.jpg';
       case 3:
@@ -271,12 +271,12 @@ class _RoomUpgradeScreenState extends ConsumerState<RoomUpgradeScreen> {
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
                                       color: AppColors.surfaceContainerLow,
-                                      borderRadius: BorderRadius.circular(18),
+                                      borderRadius: BorderRadius.circular(AppRadius.lg),
                                       border: Border.all(color: AppColors.outline, width: 2),
                                       boxShadow: const [
                                         BoxShadow(
-                                          color: Color(0x474A2E70),
-                                          offset: Offset(0, 6),
+                                          color: Color(0x474E2F1B),
+                                          offset: Offset(0, 4),
                                           blurRadius: 0,
                                         ),
                                       ],
