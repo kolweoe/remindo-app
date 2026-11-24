@@ -1,7 +1,9 @@
-name: Build Remindo APK
+name: Build Remindo APK (GitHub Actions)
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
     branches: [ main ]
   workflow_dispatch:
 
@@ -29,11 +31,14 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Analyze Code
+        run: flutter analyze --no-fatal-infos
+
       - name: Build Debug APK
         run: flutter build apk --debug
 
-      - name: Upload Debug APK to GitHub
+      - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Remindo-v1-Debug-APK
+          name: Remindo-App-Debug-APK
           path: build/app/outputs/flutter-apk/app-debug.apk

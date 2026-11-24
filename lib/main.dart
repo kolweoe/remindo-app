@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/services/alarm_scheduler.dart';
+import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,23 +27,7 @@ class RemindoApp extends StatelessWidget {
     return MaterialApp(
       title: 'Remindo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
-        primaryColor: const Color(0xFF8B5CF6),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF8B5CF6),
-          secondary: Color(0xFFFBBF24),
-          surface: Color(0xFF1E293B),
-          background: Color(0xFF0F172A),
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1E293B),
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       initialRoute: AppRouter.home,
       onGenerateRoute: AppRouter.onGenerateRoute,
     );

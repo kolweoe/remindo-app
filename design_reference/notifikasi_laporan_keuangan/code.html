@@ -1,0 +1,551 @@
+<!DOCTYPE html><html lang="id"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifikasi Laporan Keuangan | Remindo</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#6D3FA8',
+        'on-primary': '#FFFFFF',
+        'primary-container': '#8B5CF6',
+        'on-primary-container': '#0F0F0F',
+        'secondary': '#D9468F',
+        'on-secondary': '#161616',
+        'secondary-container': '#FCE7F3',
+        'on-secondary-container': '#831843',
+        'accent': '#F59E0B',
+        'on-accent': '#2D1B4E',
+        'accent-container': '#FEF3C7',
+        'on-accent-container': '#78350F',
+        'surface': '#F3E8FF',
+        'on-surface': '#2D1B4E',
+        'surface-container-low': '#FFF8EB',
+        'on-surface-container-low': '#2D1B4E',
+        'surface-container': '#F7ECFF',
+        'on-surface-container': '#2D1B4E',
+        'surface-container-high': '#E9D5FF',
+        'on-surface-container-high': '#2D1B4E',
+        'surface-nav': '#4A2E70',
+        'on-surface-nav': '#FFFFFF',
+        'outline': '#4A2E70',
+        'outline-variant': '#D8B4FE',
+        'success': '#2E8B57',
+        'on-success': '#0F0F0F',
+        'warning': '#D97706',
+        'on-warning': '#2A2A2A',
+        'error': '#DC2626',
+        'on-error': '#FFFFFF',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '12px',
+        'md': '14px',
+        'lg': '18px',
+        'xl': '24px',
+        'full': '9999px',
+      },
+      spacing: {
+        'unit-xs': '4px',
+        'unit-sm': '8px',
+        'unit-md': '12px',
+        'unit-lg': '16px',
+        'unit-xl': '24px',
+        'page-margin': '16px',
+        'nav-height': '72px',
+      },
+      fontFamily: {
+        'display': ['"Boogaloo"', 'sans-serif'],
+        'headline': ['"Boogaloo"', 'sans-serif'],
+        'title': ['"Capriola"', 'sans-serif'],
+        'body': ['"Capriola"', 'sans-serif'],
+        'label': ['"Capriola"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['44px', { lineHeight: '48px', letterSpacing: '0px', fontWeight: '400' }],
+        'display-lg-mobile': ['32px', { lineHeight: '36px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-lg': ['28px', { lineHeight: '34px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['13px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '400' }],
+        'mono-lg': ['20px', { lineHeight: '24px', letterSpacing: '-0.2px', fontWeight: '700' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '600' }],
+      },
+      transitionDuration: {
+        'button-press': '100ms',
+        'surface-enter': '220ms',
+      },
+      transitionDelay: {
+        'button-press': '0ms',
+        'surface-enter': '0ms',
+      },
+      transitionTimingFunction: {
+        'button-press': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&amp;family=Capriola&amp;family=Spline+Sans+Mono:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .pixel-shadow-sm {
+      box-shadow: 0 2px 0 #2D1B4E;
+    }
+    .pixel-shadow-md {
+      box-shadow: 0 4px 0 #2D1B4E;
+    }
+    .pixel-shadow-card {
+      box-shadow: 0 6px 0 rgba(74, 46, 112, 0.28);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+  <div class="min-h-[884px] max-w-md mx-auto flex flex-col bg-surface border-x-2 border-outline relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Contextual Task Flow Header -->
+    <header class="bg-surface-nav text-on-surface-nav border-b-2 border-outline px-unit-md py-unit-sm z-20 flex items-center justify-between gap-unit-sm">
+      <a href="#wallet" aria-label="Kembali ke Dompetku" class="inline-flex items-center justify-center w-10 h-10 bg-primary text-on-primary border-2 border-outline rounded-md pixel-shadow-sm">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">arrow_back</span>
+      </a>
+
+      <h1 data-design-text-token="headline-lg" class="font-headline text-headline-lg text-center">Notifikasi Laporan</h1>
+
+      <div class="w-10"></div>
+    </header>
+
+    <!-- Main Notification Settings Form -->
+    <main class="flex-1 flex flex-col justify-between gap-unit-md p-unit-lg">
+
+      <div class="flex flex-col gap-unit-md">
+        <!-- Mode Tampilan Notifikasi (Pengganti Pengaturan Sebelumnya) -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+          <div class="flex items-center justify-between gap-unit-sm">
+            <div class="flex items-center gap-unit-sm min-w-0">
+              <div class="w-10 h-10 bg-accent-container border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-primary text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">notifications_active</span>
+              </div>
+              <div class="flex flex-col gap-0 min-w-0">
+                <h2 data-design-text-token="title-md" class="font-title text-title-md">Mode Tampilan Notifikasi</h2>
+                <span id="notif-mode-subtitle" data-design-text-token="label-sm" class="font-label text-label-sm">Otomatis: Beranda &amp; Layar Kunci</span>
+              </div>
+            </div>
+
+            <button id="notif-master-toggle" type="button" role="switch" aria-checked="true" aria-label="Aktifkan notifikasi laporan keuangan" class="inline-flex items-center justify-end w-16 h-8 bg-success text-on-success border-2 border-outline rounded-full px-unit-xs pixel-shadow-sm shrink-0">
+              <span id="notif-toggle-label" data-design-text-token="label-sm" class="font-label text-label-sm mr-auto pl-unit-xs">ON</span>
+              <span class="w-5 h-5 bg-surface-container-low border-2 border-outline rounded-full"></span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-unit-xs" role="radiogroup" aria-label="Pilih lokasi tampil notifikasi">
+            <button type="button" data-mode="Layar Beranda" aria-pressed="false" class="display-mode-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-xs px-unit-xs flex flex-col items-center gap-0">
+              <span class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">layers</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Beranda</span>
+            </button>
+
+            <button type="button" data-mode="Layar Kunci" aria-pressed="false" class="display-mode-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-xs px-unit-xs flex flex-col items-center gap-0">
+              <span class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">lock</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Layar Kunci</span>
+            </button>
+
+            <button type="button" data-mode="Otomatis Keduanya" aria-pressed="true" class="display-mode-btn bg-accent-container text-on-accent-container border-2 border-outline rounded-md py-unit-xs px-unit-xs flex flex-col items-center gap-0">
+              <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">auto_awesome</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Otomatis</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- Laporan Harian Otomatis (Pilih Hari Sendiri) -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+          <div class="flex items-center justify-between gap-unit-sm">
+            <div class="flex items-center gap-unit-xs">
+              <span class="material-symbols-outlined text-primary text-[20px]" aria-hidden="true">today</span>
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Laporan Harian Otomatis</h2>
+            </div>
+            <button id="daily-toggle" type="button" role="switch" aria-checked="true" aria-label="Aktifkan laporan harian otomatis" class="inline-flex items-center justify-end w-14 h-7 bg-success text-on-success border-2 border-outline rounded-full px-unit-xs pixel-shadow-sm shrink-0">
+              <span id="daily-toggle-label" data-design-text-token="label-sm" class="font-label text-label-sm mr-auto pl-unit-xs">ON</span>
+              <span class="w-4 h-4 bg-surface-container-low border-2 border-outline rounded-full"></span>
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Pilih Hari Sendiri</span>
+            <span id="selected-days-summary" data-design-text-token="label-sm" class="font-label text-label-sm text-primary">Sen, Rab, Jum</span>
+          </div>
+
+          <!-- 7 Day Toggles (Pick your own days, no presets) -->
+          <div class="grid grid-cols-7 gap-unit-xs" role="group" aria-label="Pilih hari laporan harian">
+            <button type="button" data-day="Sen" aria-pressed="true" class="day-btn bg-success text-on-success border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Sen</span>
+            </button>
+            <button type="button" data-day="Sel" aria-pressed="false" class="day-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Sel</span>
+            </button>
+            <button type="button" data-day="Rab" aria-pressed="true" class="day-btn bg-success text-on-success border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Rab</span>
+            </button>
+            <button type="button" data-day="Kam" aria-pressed="false" class="day-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Kam</span>
+            </button>
+            <button type="button" data-day="Jum" aria-pressed="true" class="day-btn bg-success text-on-success border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Jum</span>
+            </button>
+            <button type="button" data-day="Sab" aria-pressed="false" class="day-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Sab</span>
+            </button>
+            <button type="button" data-day="Min" aria-pressed="false" class="day-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Min</span>
+            </button>
+          </div>
+
+          <!-- Daily Time Picker -->
+          <div class="flex items-center justify-between gap-unit-md pt-unit-xs">
+            <label for="daily-notif-time" class="inline-flex items-center gap-unit-xs">
+              <span class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">schedule</span>
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Jam Laporan Harian</span>
+            </label>
+            <input id="daily-notif-time" type="time" value="20:00" class="bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-md py-unit-xs font-mono text-mono-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary">
+          </div>
+        </article>
+
+        <!-- Laporan Bulanan Otomatis -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+          <div class="flex items-center justify-between gap-unit-sm">
+            <div class="flex items-center gap-unit-xs">
+              <span class="material-symbols-outlined text-secondary text-[20px]" aria-hidden="true">calendar_month</span>
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Laporan Bulanan Otomatis</h2>
+            </div>
+            <button id="monthly-toggle" type="button" role="switch" aria-checked="true" aria-label="Aktifkan laporan bulanan otomatis" class="inline-flex items-center justify-end w-14 h-7 bg-success text-on-success border-2 border-outline rounded-full px-unit-xs pixel-shadow-sm shrink-0">
+              <span id="monthly-toggle-label" data-design-text-token="label-sm" class="font-label text-label-sm mr-auto pl-unit-xs">ON</span>
+              <span class="w-4 h-4 bg-surface-container-low border-2 border-outline rounded-full"></span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-unit-sm">
+            <div class="flex flex-col gap-unit-xs">
+              <label for="monthly-date-select" data-design-text-token="label-sm" class="font-label text-label-sm">Tanggal Setiap Bulan</label>
+              <select id="monthly-date-select" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-xs font-body text-body-md focus:outline-none focus:ring-2 focus:ring-primary">
+                <option value="Tanggal 1" selected>Tanggal 1</option>
+                <option value="Tanggal 15">Tanggal 15</option>
+                <option value="Tanggal 25">Tanggal 25</option>
+                <option value="Akhir Bulan">Akhir Bulan</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-unit-xs">
+              <label for="monthly-notif-time" data-design-text-token="label-sm" class="font-label text-label-sm">Jam Kirim Bulanan</label>
+              <input id="monthly-notif-time" type="time" value="09:00" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-xs font-mono text-mono-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary">
+            </div>
+          </div>
+        </article>
+
+        <!-- Input Isi Laporan Keuangan -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+          <div class="flex items-center gap-unit-xs">
+            <span class="material-symbols-outlined text-primary text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">edit_note</span>
+            <h2 data-design-text-token="title-md" class="font-title text-title-md">Input Isi Laporan</h2>
+          </div>
+
+          <div class="flex flex-col gap-unit-xs">
+            <label for="notif-title" data-design-text-token="label-sm" class="font-label text-label-sm">Judul Notifikasi</label>
+            <input id="notif-title" type="text" value="Laporan Keuangan Dompetku" placeholder="mis. Rekap Harian &amp; Bulanan" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-xs font-body text-body-md focus:outline-none focus:ring-2 focus:ring-primary">
+          </div>
+
+          <div class="flex flex-col gap-unit-xs">
+            <label for="notif-message" data-design-text-token="label-sm" class="font-label text-label-sm">Pesan / Catatan Laporan</label>
+            <textarea id="notif-message" rows="2" placeholder="Tulis pesan notifikasi laporan sesuai keinginan..." class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-xs font-body text-body-md focus:outline-none focus:ring-2 focus:ring-primary">Cek pemasukan &amp; pengeluaranmu hari ini agar target tabungan tetap aman!</textarea>
+          </div>
+
+          <div class="flex flex-col gap-unit-xs">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Sertakan Data Otomatis</span>
+            <div class="grid grid-cols-3 gap-unit-xs">
+              <button type="button" aria-pressed="true" class="include-chip bg-accent-container text-on-accent-container border-2 border-outline rounded-md py-unit-xs text-center">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Pemasukan</span>
+              </button>
+              <button type="button" aria-pressed="true" class="include-chip bg-accent-container text-on-accent-container border-2 border-outline rounded-md py-unit-xs text-center">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Pengeluaran</span>
+              </button>
+              <button type="button" aria-pressed="true" class="include-chip bg-accent-container text-on-accent-container border-2 border-outline rounded-md py-unit-xs text-center">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Saldo</span>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Pratinjau Notifikasi Langsung -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+          <div class="flex items-center justify-between gap-unit-sm">
+            <div class="flex items-center gap-unit-xs">
+              <span class="material-symbols-outlined text-primary text-[20px]" aria-hidden="true">visibility</span>
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Pratinjau Notifikasi</h2>
+            </div>
+            <span id="preview-status-badge" data-design-text-token="label-sm" class="font-label text-label-sm bg-success text-on-success border-2 border-outline rounded-full px-unit-sm py-0.5">Aktif</span>
+          </div>
+
+          <div class="bg-surface-container text-on-surface-container border-2 border-outline rounded-lg p-unit-sm flex flex-col gap-unit-xs">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <div class="flex items-center gap-unit-xs">
+                <span class="w-5 h-5 bg-primary text-on-primary border border-outline rounded flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-[14px]" aria-hidden="true">account_balance_wallet</span>
+                </span>
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Remindo · Dompetku</span>
+              </div>
+              <span id="preview-time-text" data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">20:00</span>
+            </div>
+
+            <p id="preview-title" data-design-text-token="title-md" class="font-title text-title-md">Laporan Keuangan Dompetku</p>
+            <p id="preview-message" data-design-text-token="body-md" class="font-body text-body-md">Cek pemasukan &amp; pengeluaranmu hari ini agar target tabungan tetap aman!</p>
+
+            <div id="preview-data-box" class="bg-surface-container-low text-on-surface-container-low border border-outline rounded-md px-unit-sm py-unit-xs">
+              <p id="preview-data-line" data-design-text-token="mono-sm" class="font-mono text-mono-sm">Masuk: +Rp 150.000 • Keluar: -Rp 45.000 • Saldo: Rp 850.000</p>
+            </div>
+
+            <p id="preview-schedule-line" data-design-text-token="label-sm" class="font-label text-label-sm text-primary">Harian: Sen, Rab, Jum (20:00) • Bulanan: Tanggal 1 (09:00)</p>
+          </div>
+        </article>
+
+        <!-- Save Feedback Banner -->
+        <div id="notif-feedback" class="hidden bg-surface-container-high text-on-surface-container-high border-2 border-outline rounded-md px-unit-md py-unit-sm text-center">
+          <span id="notif-feedback-text" data-design-text-token="label-lg" class="font-label text-label-lg"></span>
+        </div>
+      </div>
+
+      <!-- Primary Save CTA -->
+      <button id="save-notif-btn" data-component-id="button-primary" data-component-type="button" data-component-variant="primary" type="button" class="w-full flex items-center justify-center gap-unit-sm bg-primary text-on-primary border-2 border-outline rounded-lg py-unit-md pixel-shadow-md active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+        <span class="material-symbols-outlined text-accent text-[20px]" aria-hidden="true">save</span>
+        <span data-design-text-token="title-md" class="font-title text-title-md">Simpan Pengaturan</span>
+      </button>
+
+    </main>
+
+  </div>
+
+  <script>
+    (function () {
+      var masterToggle = document.getElementById('notif-master-toggle');
+      var toggleLabel = document.getElementById('notif-toggle-label');
+      var dailyToggle = document.getElementById('daily-toggle');
+      var dailyLabel = document.getElementById('daily-toggle-label');
+      var monthlyToggle = document.getElementById('monthly-toggle');
+      var monthlyLabel = document.getElementById('monthly-toggle-label');
+      var dayBtns = document.querySelectorAll('.day-btn');
+      var summary = document.getElementById('selected-days-summary');
+      var dailyTime = document.getElementById('daily-notif-time');
+      var monthlyDate = document.getElementById('monthly-date-select');
+      var monthlyTime = document.getElementById('monthly-notif-time');
+      var includeChips = document.querySelectorAll('.include-chip');
+      var notifTitle = document.getElementById('notif-title');
+      var notifMessage = document.getElementById('notif-message');
+      var saveBtn = document.getElementById('save-notif-btn');
+      var feedback = document.getElementById('notif-feedback');
+      var feedbackText = document.getElementById('notif-feedback-text');
+
+      var previewStatusBadge = document.getElementById('preview-status-badge');
+      var previewTimeText = document.getElementById('preview-time-text');
+      var previewTitle = document.getElementById('preview-title');
+      var previewMessage = document.getElementById('preview-message');
+      var previewDataBox = document.getElementById('preview-data-box');
+      var previewDataLine = document.getElementById('preview-data-line');
+      var previewScheduleLine = document.getElementById('preview-schedule-line');
+
+      var isEnabled = true;
+      var isDailyOn = true;
+      var isMonthlyOn = true;
+      var displayMode = 'Otomatis Keduanya';
+      var modeBtns = document.querySelectorAll('.display-mode-btn');
+      var modeSubtitle = document.getElementById('notif-mode-subtitle');
+
+      function updatePreview() {
+        if (previewStatusBadge) {
+          if (isEnabled) {
+            previewStatusBadge.textContent = displayMode;
+            previewStatusBadge.classList.remove('bg-surface-container-high', 'text-on-surface-container-high');
+            previewStatusBadge.classList.add('bg-success', 'text-on-success');
+          } else {
+            previewStatusBadge.textContent = 'Nonaktif';
+            previewStatusBadge.classList.remove('bg-success', 'text-on-success');
+            previewStatusBadge.classList.add('bg-surface-container-high', 'text-on-surface-container-high');
+          }
+        }
+
+        if (previewTitle && notifTitle) {
+          previewTitle.textContent = notifTitle.value.trim() || 'Laporan Keuangan Dompetku';
+        }
+        if (previewMessage && notifMessage) {
+          previewMessage.textContent = notifMessage.value.trim() || 'Belum ada catatan pesan.';
+        }
+
+        var dt = dailyTime ? dailyTime.value : '20:00';
+        var md = monthlyDate ? monthlyDate.value : 'Tanggal 1';
+        var mt = monthlyTime ? monthlyTime.value : '09:00';
+        if (previewTimeText) {
+          previewTimeText.textContent = isDailyOn ? dt : (isMonthlyOn ? mt : '--:--');
+        }
+
+        var parts = [];
+        includeChips.forEach(function (chip) {
+          if (chip.getAttribute('aria-pressed') === 'true') {
+            var label = chip.textContent.trim();
+            if (label === 'Pemasukan') parts.push('Masuk: +Rp 150.000');
+            else if (label === 'Pengeluaran') parts.push('Keluar: -Rp 45.000');
+            else if (label === 'Saldo') parts.push('Saldo: Rp 850.000');
+          }
+        });
+        if (previewDataBox && previewDataLine) {
+          if (parts.length > 0) {
+            previewDataBox.classList.remove('hidden');
+            previewDataLine.textContent = parts.join(' • ');
+          } else {
+            previewDataBox.classList.add('hidden');
+          }
+        }
+
+        if (previewScheduleLine) {
+          if (!isEnabled) {
+            previewScheduleLine.textContent = 'Notifikasi laporan sedang dimatikan';
+          } else {
+            var sched = [];
+            var dayText = summary ? summary.textContent : 'Sen, Rab, Jum';
+            if (isDailyOn) sched.push('Harian: ' + dayText + ' (' + dt + ')');
+            if (isMonthlyOn) sched.push('Bulanan: ' + md + ' (' + mt + ')');
+            previewScheduleLine.textContent = sched.length > 0 ? sched.join(' • ') : 'Belum ada jadwal aktif';
+          }
+        }
+      }
+
+      modeBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          displayMode = btn.getAttribute('data-mode') || 'Otomatis Keduanya';
+          modeBtns.forEach(function (other) {
+            var active = other === btn;
+            other.setAttribute('aria-pressed', active ? 'true' : 'false');
+            if (active) {
+              other.classList.remove('bg-surface-container', 'text-on-surface-container');
+              other.classList.add('bg-accent-container', 'text-on-accent-container');
+            } else {
+              other.classList.remove('bg-accent-container', 'text-on-accent-container');
+              other.classList.add('bg-surface-container', 'text-on-surface-container');
+            }
+          });
+          if (modeSubtitle) {
+            if (displayMode === 'Layar Beranda') modeSubtitle.textContent = 'Stiker mengambang di beranda';
+            else if (displayMode === 'Layar Kunci') modeSubtitle.textContent = 'Popup penuh di layar kunci';
+            else modeSubtitle.textContent = 'Otomatis: Beranda & Layar Kunci';
+          }
+          updatePreview();
+        });
+      });
+
+      function bindSwitch(btn, labelEl, getState, setState) {
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+          var next = !getState();
+          setState(next);
+          btn.setAttribute('aria-checked', String(next));
+          if (next) {
+            btn.classList.remove('bg-surface-container-high', 'text-on-surface-container-high', 'justify-start');
+            btn.classList.add('bg-success', 'text-on-success', 'justify-end');
+            if (labelEl) labelEl.textContent = 'ON';
+          } else {
+            btn.classList.remove('bg-success', 'text-on-success', 'justify-end');
+            btn.classList.add('bg-surface-container-high', 'text-on-surface-container-high', 'justify-start');
+            if (labelEl) labelEl.textContent = 'OFF';
+          }
+          updatePreview();
+        });
+      }
+
+      bindSwitch(masterToggle, toggleLabel, function () { return isEnabled; }, function (v) { isEnabled = v; });
+      bindSwitch(dailyToggle, dailyLabel, function () { return isDailyOn; }, function (v) { isDailyOn = v; });
+      bindSwitch(monthlyToggle, monthlyLabel, function () { return isMonthlyOn; }, function (v) { isMonthlyOn = v; });
+
+      function updateSummary() {
+        var active = [];
+        dayBtns.forEach(function (b) {
+          if (b.getAttribute('aria-pressed') === 'true') active.push(b.getAttribute('data-day'));
+        });
+        if (!summary) return;
+        if (active.length === 0) summary.textContent = 'Belum dipilih';
+        else summary.textContent = active.join(', ');
+      }
+
+      dayBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var current = btn.getAttribute('aria-pressed') === 'true';
+          var next = !current;
+          btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+          if (next) {
+            btn.classList.remove('bg-surface-container', 'text-on-surface-container');
+            btn.classList.add('bg-success', 'text-on-success');
+          } else {
+            btn.classList.remove('bg-success', 'text-on-success');
+            btn.classList.add('bg-surface-container', 'text-on-surface-container');
+          }
+          updateSummary();
+          updatePreview();
+        });
+      });
+
+      includeChips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          var on = chip.getAttribute('aria-pressed') === 'true';
+          chip.setAttribute('aria-pressed', on ? 'false' : 'true');
+          if (!on) {
+            chip.classList.remove('bg-surface-container', 'text-on-surface-container');
+            chip.classList.add('bg-accent-container', 'text-on-accent-container');
+          } else {
+            chip.classList.remove('bg-accent-container', 'text-on-accent-container');
+            chip.classList.add('bg-surface-container', 'text-on-surface-container');
+          }
+          updatePreview();
+        });
+      });
+
+      if (notifTitle) notifTitle.addEventListener('input', updatePreview);
+      if (notifMessage) notifMessage.addEventListener('input', updatePreview);
+      if (dailyTime) dailyTime.addEventListener('change', updatePreview);
+      if (monthlyDate) monthlyDate.addEventListener('change', updatePreview);
+      if (monthlyTime) monthlyTime.addEventListener('change', updatePreview);
+
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function () {
+          var title = notifTitle ? notifTitle.value : 'Laporan Keuangan';
+          var dt = dailyTime ? dailyTime.value : '20:00';
+          var s = summary ? summary.textContent : 'Sen, Rab, Jum';
+          var md = monthlyDate ? monthlyDate.value : 'Tanggal 1';
+          var mt = monthlyTime ? monthlyTime.value : '09:00';
+          if (feedbackText) {
+            feedbackText.textContent = isEnabled
+              ? '"' + title + '" disimpan! Harian: ' + s + ' (' + dt + ') • Bulanan: ' + md + ' (' + mt + ')'
+              : 'Notifikasi laporan keuangan dimatikan.';
+          }
+          if (feedback) feedback.classList.remove('hidden');
+        });
+      }
+
+      updatePreview();
+    })();
+  </script>
+
+
+</body></html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="id"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riwayat Quest &amp; Statistik | Remindo</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#6D3FA8',
+        'on-primary': '#FFFFFF',
+        'primary-container': '#8B5CF6',
+        'on-primary-container': '#0F0F0F',
+        'secondary': '#D9468F',
+        'on-secondary': '#161616',
+        'secondary-container': '#FCE7F3',
+        'on-secondary-container': '#831843',
+        'accent': '#F59E0B',
+        'on-accent': '#2D1B4E',
+        'accent-container': '#FEF3C7',
+        'on-accent-container': '#78350F',
+        'surface': '#F3E8FF',
+        'on-surface': '#2D1B4E',
+        'surface-container-low': '#FFF8EB',
+        'on-surface-container-low': '#2D1B4E',
+        'surface-container': '#F7ECFF',
+        'on-surface-container': '#2D1B4E',
+        'surface-container-high': '#E9D5FF',
+        'on-surface-container-high': '#2D1B4E',
+        'surface-nav': '#4A2E70',
+        'on-surface-nav': '#FFFFFF',
+        'outline': '#4A2E70',
+        'outline-variant': '#D8B4FE',
+        'success': '#2E8B57',
+        'on-success': '#0F0F0F',
+        'warning': '#D97706',
+        'on-warning': '#2A2A2A',
+        'error': '#DC2626',
+        'on-error': '#FFFFFF',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '12px',
+        'md': '14px',
+        'lg': '18px',
+        'xl': '24px',
+        'full': '9999px',
+      },
+      spacing: {
+        'unit-xs': '4px',
+        'unit-sm': '8px',
+        'unit-md': '12px',
+        'unit-lg': '16px',
+        'unit-xl': '24px',
+        'page-margin': '16px',
+        'nav-height': '72px',
+      },
+      fontFamily: {
+        'display': ['"Boogaloo"', 'sans-serif'],
+        'headline': ['"Boogaloo"', 'sans-serif'],
+        'title': ['"Capriola"', 'sans-serif'],
+        'body': ['"Capriola"', 'sans-serif'],
+        'label': ['"Capriola"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['44px', { lineHeight: '48px', letterSpacing: '0px', fontWeight: '400' }],
+        'display-lg-mobile': ['32px', { lineHeight: '36px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-lg': ['28px', { lineHeight: '34px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['13px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '400' }],
+        'mono-lg': ['20px', { lineHeight: '24px', letterSpacing: '-0.2px', fontWeight: '700' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '600' }],
+      },
+      transitionDuration: {
+        'button-press': '100ms',
+        'surface-enter': '220ms',
+      },
+      transitionDelay: {
+        'button-press': '0ms',
+        'surface-enter': '0ms',
+      },
+      transitionTimingFunction: {
+        'button-press': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&amp;family=Capriola&amp;family=Spline+Sans+Mono:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .pixel-shadow-sm {
+      box-shadow: 0 2px 0 #2D1B4E;
+    }
+    .pixel-shadow-md {
+      box-shadow: 0 4px 0 #2D1B4E;
+    }
+    .pixel-shadow-card {
+      box-shadow: 0 4px 0 rgba(74, 46, 112, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+  <div class="min-h-[884px] max-w-md mx-auto flex flex-col bg-surface border-x-2 border-outline relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Contextual Header -->
+    <header class="bg-surface-nav text-on-surface-nav border-b-2 border-outline px-unit-md py-unit-sm z-20 flex items-center justify-between gap-unit-sm">
+      <a href="#quests" aria-label="Kembali ke Quest Board" class="inline-flex items-center justify-center w-10 h-10 bg-primary text-on-primary border-2 border-outline rounded-md pixel-shadow-sm">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">arrow_back</span>
+      </a>
+
+      <h1 data-design-text-token="headline-lg" class="font-headline text-headline-lg text-center">Riwayat &amp; Statistik</h1>
+
+      <div class="w-10"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col gap-unit-md p-unit-lg">
+
+      <!-- Top Summary KPIs -->
+      <div class="grid grid-cols-3 gap-unit-sm items-stretch">
+        <div class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-sm pixel-shadow-card flex flex-col items-center justify-center gap-0 text-center">
+          <span class="material-symbols-outlined text-primary text-[22px]" aria-hidden="true">task_alt</span>
+          <span data-design-text-token="mono-lg" class="font-mono text-mono-lg tabular-nums">48</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Selesai</span>
+        </div>
+
+        <div class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-sm pixel-shadow-card flex flex-col items-center justify-center gap-0 text-center">
+          <span class="material-symbols-outlined text-accent text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+          <span data-design-text-token="mono-lg" class="font-mono text-mono-lg tabular-nums">1.250</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Total Coin</span>
+        </div>
+
+        <div class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-sm pixel-shadow-card flex flex-col items-center justify-center gap-0 text-center">
+          <span class="material-symbols-outlined text-error text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">local_fire_department</span>
+          <span data-design-text-token="mono-lg" class="font-mono text-mono-lg tabular-nums">21</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Max Streak</span>
+        </div>
+      </div>
+
+      <!-- Weekly Completion Chart Card -->
+      <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-md">
+        <div class="flex items-center justify-between">
+          <h2 data-design-text-token="title-md" class="font-title text-title-md">Quest Selesai Mingguan</h2>
+          <span class="bg-accent-container text-on-accent-container border border-outline rounded-sm px-unit-xs py-0">
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">18 Quest</span>
+          </span>
+        </div>
+
+        <div class="grid grid-cols-7 items-end gap-unit-sm h-24 pt-unit-sm border-b-2 border-outline-variant pb-unit-xs">
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-primary border-2 border-outline rounded-t-sm" style="height: 60%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Sen</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-success border-2 border-outline rounded-t-sm" style="height: 90%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Sel</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-primary border-2 border-outline rounded-t-sm" style="height: 50%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Rab</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-secondary border-2 border-outline rounded-t-sm" style="height: 75%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Kam</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-success border-2 border-outline rounded-t-sm" style="height: 85%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Jum</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-accent border-2 border-outline rounded-t-sm" style="height: 40%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Sab</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-primary border-2 border-outline rounded-t-sm" style="height: 65%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Min</span>
+          </div>
+        </div>
+
+        <!-- Difficulty Breakdown -->
+        <div class="grid grid-cols-3 gap-unit-xs">
+          <div class="bg-surface-container border border-outline rounded-md px-unit-sm py-unit-xs flex items-center justify-between">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Easy</span>
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">18</span>
+          </div>
+          <div class="bg-surface-container border border-outline rounded-md px-unit-sm py-unit-xs flex items-center justify-between">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Normal</span>
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">20</span>
+          </div>
+          <div class="bg-surface-container border border-outline rounded-md px-unit-sm py-unit-xs flex items-center justify-between">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Hard</span>
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">10</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- History List Card -->
+      <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+        <div class="flex items-center justify-between">
+          <h2 data-design-text-token="title-md" class="font-title text-title-md">Riwayat Quest</h2>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm text-primary">Terbaru</span>
+        </div>
+
+        <div class="flex flex-col gap-unit-sm">
+          <!-- History Item 1 -->
+          <div class="bg-surface-container border-2 border-outline rounded-lg p-unit-sm flex items-center justify-between gap-unit-sm">
+            <div class="flex items-center gap-unit-sm min-w-0">
+              <span class="inline-flex items-center justify-center w-8 h-8 bg-success text-on-success border-2 border-outline rounded-md shrink-0">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">check</span>
+              </span>
+              <div class="flex flex-col gap-0 min-w-0">
+                <span data-design-text-token="label-lg" class="font-label text-label-lg truncate">Belajar Kalkulus 1 jam</span>
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Hari ini • Tanpa Snooze (+20%)</span>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-0 shrink-0">
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+36 XP</span>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+15 Coin</span>
+            </div>
+          </div>
+
+          <!-- History Item 2 -->
+          <div class="bg-surface-container border-2 border-outline rounded-lg p-unit-sm flex items-center justify-between gap-unit-sm">
+            <div class="flex items-center gap-unit-sm min-w-0">
+              <span class="inline-flex items-center justify-center w-8 h-8 bg-success text-on-success border-2 border-outline rounded-md shrink-0">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">check</span>
+              </span>
+              <div class="flex flex-col gap-0 min-w-0">
+                <span data-design-text-token="label-lg" class="font-label text-label-lg truncate">Kumpulkan Tugas Basis Data</span>
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Kemarin • Hard Quest</span>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-0 shrink-0">
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+120 XP</span>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+60 Coin</span>
+            </div>
+          </div>
+
+          <!-- History Item 3 -->
+          <div class="bg-surface-container border-2 border-outline rounded-lg p-unit-sm flex items-center justify-between gap-unit-sm">
+            <div class="flex items-center gap-unit-sm min-w-0">
+              <span class="inline-flex items-center justify-center w-8 h-8 bg-success text-on-success border-2 border-outline rounded-md shrink-0">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">check</span>
+              </span>
+              <div class="flex flex-col gap-0 min-w-0">
+                <span data-design-text-token="label-lg" class="font-label text-label-lg truncate">Review catatan kuliah</span>
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">17 Nov • Normal Quest</span>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-0 shrink-0">
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+60 XP</span>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+30 Coin</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </main>
+
+  </div>
+
+
+</body></html>

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/providers/app_providers.dart';
+import '../core/router/app_router.dart';
+import '../core/theme/pixel_theme.dart';
 import '../core/utils/responsive.dart';
+import '../widgets/pixel_scaffold.dart';
 
 class WalletScreen extends ConsumerWidget {
   const WalletScreen({super.key});
@@ -11,271 +14,447 @@ class WalletScreen extends ConsumerWidget {
     final summaryAsync = ref.watch(walletSummaryProvider);
     final transactionsAsync = ref.watch(transactionsListProvider(null));
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-        title: const Text(
-          'Dompetku (Uang Saku)',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+    return PixelScaffold(
+      currentTabIndex: 3,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: PixelColors.coinGold,
+        foregroundColor: PixelColors.deepPurple,
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: PixelColors.deepPurple, width: 2),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_active_outlined, color: Colors.white70),
-            onPressed: () => Navigator.pushNamed(context, '#wallet-notification'),
-          ),
-        ],
+        onPressed: () async {
+          await Navigator.pushNamed(context, AppRouter.addTransaction);
+          ref.invalidate(transactionsListProvider(null));
+          ref.read(walletSummaryProvider.notifier).loadSummary();
+        },
+        child: const Icon(Icons.add, size: 28),
       ),
-      body: ResponsiveWrapper(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(Responsive.px(context, 16)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // --- SALDO UTAMA CARD ---
-              summaryAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFF8B5CF6))),
-                error: (err, _) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
-                data: (summary) {
-                  final balance = summary['balance'] ?? 0;
-                  final income = summary['income'] ?? 0;
-                  final expense = summary['expense'] ?? 0;
-
-                  return Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF1E1E2E), Color(0xFF2D1B69)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.5)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF8B5CF6).withOpacity(0.15),
-                          blurRadius: 15,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Sisa Saldo Uang Jajan',
-                          style: TextStyle(color: Colors.white60, fontSize: 12),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Rp ${balance.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        Row(
-                          children: [
-                            // Income
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.black26,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        Icon(Icons.arrow_downward, color: Color(0xFF10B981), size: 14),
-                                        SizedBox(width: 4),
-                                        Text('Masuk', style: TextStyle(color: Colors.white60, fontSize: 11)),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Rp $income',
-                                      style: const TextStyle(color: Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            // Expense
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.black26,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        Icon(Icons.arrow_upward, color: Color(0xFFEF4444), size: 14),
-                                        SizedBox(width: 4),
-                                        Text('Keluar', style: TextStyle(color: Colors.white60, fontSize: 11)),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Rp $expense',
-                                      style: const TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.bold, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 16),
-
-              // --- BUTTON ROW: Catat Transaksi & Peti Tabungan ---
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF8B5CF6),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () async {
-                        await Navigator.pushNamed(context, '#add-transaction');
-                        ref.invalidate(transactionsListProvider(null));
-                        ref.read(walletSummaryProvider.notifier).loadSummary();
-                      },
-                      icon: const Icon(Icons.add_circle_outline, size: 18),
-                      label: const Text('Catat Transaksi', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-                    ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          Responsive.px(context, 14),
+          12,
+          Responsive.px(context, 14),
+          80, // Space for FAB
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ==========================================
+            // 1. RIBBON HEADER BANNER ("DOMPETKU")
+            // ==========================================
+            Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: PixelColors.badgePurple,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: PixelColors.deepPurple, width: 2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x334A2E70),
+                    offset: Offset(0, 3),
+                    blurRadius: 0,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFFBBF24),
-                        side: const BorderSide(color: Color(0xFFFBBF24)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () => Navigator.pushNamed(context, '#savings'),
-                      icon: const Icon(Icons.savings_outlined, size: 18),
-                      label: const Text('Peti Tabungan', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('💰', style: TextStyle(fontSize: 16)),
+                  SizedBox(width: 8),
+                  Text(
+                    'DOMPETKU — CATATAN KEUANGAN',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      letterSpacing: 1.1,
                     ),
                   ),
                 ],
               ),
+            ),
 
-              const SizedBox(height: 24),
+            const SizedBox(height: 12),
 
-              // --- TRANSACTIONS LIST ---
-              const Text(
-                'Riwayat Transaksi',
-                style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+            // ==========================================
+            // 2. SALDO UTAMA PARCHMENT CARD
+            // ==========================================
+            summaryAsync.when(
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(color: PixelColors.badgePurple),
+                ),
               ),
-              const SizedBox(height: 10),
+              error: (err, _) => Center(
+                child: Text('Error: $err', style: const TextStyle(color: PixelColors.redExpense)),
+              ),
+              data: (summary) {
+                final balance = summary['balance'] ?? 0;
+                final income = summary['income'] ?? 0;
+                final expense = summary['expense'] ?? 0;
 
-              transactionsAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFF8B5CF6))),
-                error: (err, _) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
-                data: (txList) {
-                  if (txList.isEmpty) {
-                    return Container(
-                      padding: const EdgeInsets.all(24),
-                      alignment: Alignment.center,
-                      child: const Text('Belum ada transaksi.', style: TextStyle(color: Colors.white54, fontSize: 13)),
-                    );
-                  }
-
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: txList.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (context, i) {
-                      final item = txList[i];
-                      final isIncome = item.type == 'income';
-                      return Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF334155)),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: (isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444)).withOpacity(0.15),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-                                color: isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                                size: 16,
-                              ),
+                return Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: PixelDecorations.card(
+                    color: PixelColors.cardParchment,
+                    radius: 16,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Sisa Saldo Uang Jajan',
+                            style: TextStyle(
+                              color: PixelColors.textMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: PixelColors.badgePurple,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Text(
+                              'Aktif',
+                              style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Rp ${_formatNumber(balance)}',
+                        style: const TextStyle(
+                          color: PixelColors.textDark,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Income & Expense Breakdown Row
+                      Row(
+                        children: [
+                          // Masuk
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: PixelColors.deepPurple, width: 1.5),
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    item.category,
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                  const Row(
+                                    children: [
+                                      Icon(Icons.arrow_downward_rounded, color: PixelColors.greenSuccess, size: 14),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Masuk',
+                                        style: TextStyle(color: PixelColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
                                   ),
-                                  if (item.note != null && item.note!.isNotEmpty)
-                                    Text(
-                                      item.note!,
-                                      style: const TextStyle(color: Colors.white60, fontSize: 11),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    '+Rp ${_formatNumber(income)}',
+                                    style: const TextStyle(
+                                      color: PixelColors.greenSuccess,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      fontFamily: 'monospace',
                                     ),
+                                  ),
                                 ],
                               ),
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                          ),
+                          const SizedBox(width: 8),
+
+                          // Keluar
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: PixelColors.deepPurple, width: 1.5),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Row(
+                                    children: [
+                                      Icon(Icons.arrow_upward_rounded, color: PixelColors.redExpense, size: 14),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Keluar',
+                                        style: TextStyle(color: PixelColors.textMuted, fontSize: 11, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    '-Rp ${_formatNumber(expense)}',
+                                    style: const TextStyle(
+                                      color: PixelColors.redExpense,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            // ==========================================
+            // 3. ACTION ROW: Catat Transaksi & Peti Tabungan
+            // ==========================================
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      await Navigator.pushNamed(context, AppRouter.addTransaction);
+                      ref.invalidate(transactionsListProvider(null));
+                      ref.read(walletSummaryProvider.notifier).loadSummary();
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: PixelDecorations.button(
+                        color: PixelColors.badgePurple,
+                        radius: 12,
+                      ),
+                      alignment: Alignment.center,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add_circle_outline, color: Colors.white, size: 16),
+                          SizedBox(width: 6),
+                          Text(
+                            'Catat Uang',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => Navigator.pushNamed(context, AppRouter.savings),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: PixelDecorations.button(
+                        color: PixelColors.coinGold,
+                        radius: 12,
+                      ),
+                      alignment: Alignment.center,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.savings_rounded, color: PixelColors.deepPurple, size: 16),
+                          SizedBox(width: 6),
+                          Text(
+                            'Peti Tabungan',
+                            style: TextStyle(
+                              color: PixelColors.textDark,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 18),
+
+            // ==========================================
+            // 4. RIWAYAT TRANSAKSI
+            // ==========================================
+            const Text(
+              'Riwayat Transaksi Terkini',
+              style: TextStyle(
+                color: PixelColors.textDark,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            transactionsAsync.when(
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: CircularProgressIndicator(color: PixelColors.badgePurple),
+                ),
+              ),
+              error: (err, _) => Center(
+                child: Text('Error: $err', style: const TextStyle(color: PixelColors.redExpense)),
+              ),
+              data: (txList) {
+                if (txList.isEmpty) {
+                  return Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: PixelDecorations.card(
+                      color: PixelColors.cardParchment,
+                      radius: 14,
+                    ),
+                    alignment: Alignment.center,
+                    child: const Column(
+                      children: [
+                        Text('🪙', style: TextStyle(fontSize: 28)),
+                        SizedBox(height: 8),
+                        Text(
+                          'Belum ada transaksi tercatat.',
+                          style: TextStyle(
+                            color: PixelColors.textDark,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Tekan tombol (+) untuk mencatat uang saku pertama!',
+                          style: TextStyle(
+                            color: PixelColors.textMuted,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: txList.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, i) {
+                    final item = txList[i];
+                    final isIncome = item.type == 'income';
+
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: PixelDecorations.card(
+                        color: PixelColors.cardParchment,
+                        radius: 12,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isIncome
+                                  ? PixelColors.greenSuccess.withOpacity(0.18)
+                                  : PixelColors.redExpense.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isIncome ? PixelColors.greenSuccess : PixelColors.redExpense,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Icon(
+                              isIncome ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                              color: isIncome ? PixelColors.greenSuccess : PixelColors.redExpense,
+                              size: 16,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${isIncome ? '+' : '-'}Rp ${item.amount}',
-                                  style: TextStyle(
-                                    color: isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                                  item.category,
+                                  style: const TextStyle(
+                                    color: PixelColors.textDark,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 13,
                                   ),
                                 ),
-                                Text(
-                                  item.createdAt.split('T').first,
-                                  style: const TextStyle(color: Colors.white38, fontSize: 10),
-                                ),
+                                if (item.note != null && item.note!.isNotEmpty)
+                                  Text(
+                                    item.note!,
+                                    style: const TextStyle(
+                                      color: PixelColors.textMuted,
+                                      fontSize: 11,
+                                    ),
+                                  ),
                               ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '${isIncome ? '+' : '-'}Rp ${_formatNumber(item.amount)}',
+                                style: TextStyle(
+                                  color: isIncome ? PixelColors.greenSuccess : PixelColors.redExpense,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                              Text(
+                                item.createdAt.split('T').first,
+                                style: const TextStyle(
+                                  color: PixelColors.textMuted,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  static String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+        );
   }
 }

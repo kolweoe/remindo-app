@@ -1,0 +1,251 @@
+<!DOCTYPE html><html lang="id"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaksi Baru | Remindo</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#6D3FA8',
+        'on-primary': '#FFFFFF',
+        'primary-container': '#8B5CF6',
+        'on-primary-container': '#0F0F0F',
+        'secondary': '#D9468F',
+        'on-secondary': '#161616',
+        'secondary-container': '#FCE7F3',
+        'on-secondary-container': '#831843',
+        'accent': '#F59E0B',
+        'on-accent': '#2D1B4E',
+        'accent-container': '#FEF3C7',
+        'on-accent-container': '#78350F',
+        'surface': '#F3E8FF',
+        'on-surface': '#2D1B4E',
+        'surface-container-low': '#FFF8EB',
+        'on-surface-container-low': '#2D1B4E',
+        'surface-container': '#F7ECFF',
+        'on-surface-container': '#2D1B4E',
+        'surface-container-high': '#E9D5FF',
+        'on-surface-container-high': '#2D1B4E',
+        'surface-nav': '#4A2E70',
+        'on-surface-nav': '#FFFFFF',
+        'outline': '#4A2E70',
+        'outline-variant': '#D8B4FE',
+        'success': '#2E8B57',
+        'on-success': '#0F0F0F',
+        'warning': '#D97706',
+        'on-warning': '#2A2A2A',
+        'error': '#DC2626',
+        'on-error': '#FFFFFF',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '12px',
+        'md': '14px',
+        'lg': '18px',
+        'xl': '24px',
+        'full': '9999px',
+      },
+      spacing: {
+        'unit-xs': '4px',
+        'unit-sm': '8px',
+        'unit-md': '12px',
+        'unit-lg': '16px',
+        'unit-xl': '24px',
+        'page-margin': '16px',
+        'nav-height': '72px',
+      },
+      fontFamily: {
+        'display': ['"Boogaloo"', 'sans-serif'],
+        'headline': ['"Boogaloo"', 'sans-serif'],
+        'title': ['"Capriola"', 'sans-serif'],
+        'body': ['"Capriola"', 'sans-serif'],
+        'label': ['"Capriola"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['44px', { lineHeight: '48px', letterSpacing: '0px', fontWeight: '400' }],
+        'display-lg-mobile': ['32px', { lineHeight: '36px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-lg': ['28px', { lineHeight: '34px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['13px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '400' }],
+        'mono-lg': ['20px', { lineHeight: '24px', letterSpacing: '-0.2px', fontWeight: '700' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '600' }],
+      },
+      transitionDuration: {
+        'button-press': '100ms',
+        'surface-enter': '220ms',
+      },
+      transitionDelay: {
+        'button-press': '0ms',
+        'surface-enter': '0ms',
+      },
+      transitionTimingFunction: {
+        'button-press': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&amp;family=Capriola&amp;family=Spline+Sans+Mono:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .pixel-shadow-sm {
+      box-shadow: 0 2px 0 #2D1B4E;
+    }
+    .pixel-shadow-md {
+      box-shadow: 0 4px 0 #2D1B4E;
+    }
+    .pixel-shadow-card {
+      box-shadow: 0 6px 0 rgba(74, 46, 112, 0.28);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+  <div class="min-h-[884px] max-w-md mx-auto flex flex-col justify-between bg-surface border-x-2 border-outline p-unit-lg relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Top Modal / Task Flow Header -->
+    <header class="flex items-center justify-between gap-unit-sm pb-unit-md">
+      <div class="w-10"></div>
+      <div class="bg-primary text-on-primary border-2 border-outline rounded-lg px-unit-xl py-unit-xs pixel-shadow-md flex items-center gap-unit-sm">
+        <span class="material-symbols-outlined text-accent text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">payments</span>
+        <h1 data-design-text-token="headline-lg" class="font-headline text-headline-lg text-center">Transaksi Baru</h1>
+      </div>
+      <a href="#wallet" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" aria-label="Tutup form transaksi" class="inline-flex items-center justify-center w-10 h-10 bg-secondary text-on-secondary border-2 border-outline rounded-md pixel-shadow-sm active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
+      </a>
+    </header>
+
+    <!-- Main Form Card -->
+    <main class="flex-1 flex flex-col gap-unit-md">
+      <form id="add-tx-form" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-lg pixel-shadow-card flex flex-col gap-unit-md">
+
+        <!-- Type Toggle: Pemasukan | Pengeluaran -->
+        <div class="grid grid-cols-2 gap-unit-sm" role="radiogroup" aria-label="Jenis transaksi">
+          <button id="btn-income" type="button" data-type="Pemasukan" class="tx-type-btn flex items-center justify-center gap-unit-xs bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-sm pixel-shadow-sm">
+            <span class="material-symbols-outlined text-success text-[18px]" aria-hidden="true">arrow_upward</span>
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Pemasukan</span>
+          </button>
+
+          <button id="btn-expense" type="button" data-type="Pengeluaran" class="tx-type-btn flex items-center justify-center gap-unit-xs bg-error text-on-error border-2 border-outline rounded-md py-unit-sm pixel-shadow-sm">
+            <span class="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_downward</span>
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Pengeluaran</span>
+          </button>
+        </div>
+
+        <!-- Amount Input -->
+        <div class="flex flex-col gap-unit-xs">
+          <label for="tx-amount" data-design-text-token="label-lg" class="font-label text-label-lg">Jumlah</label>
+          <div class="flex items-center gap-unit-sm bg-surface-container border-2 border-outline rounded-md px-unit-md py-unit-sm">
+            <span class="material-symbols-outlined text-accent text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+            <span data-design-text-token="mono-lg" class="font-mono text-mono-lg text-on-surface-container">Rp</span>
+            <input id="tx-amount" type="text" inputmode="numeric" value="25.000" placeholder="0" class="w-full bg-transparent border-0 p-0 font-mono text-mono-lg tabular-nums text-on-surface-container focus:ring-0">
+          </div>
+        </div>
+
+        <!-- Category Select -->
+        <div class="flex flex-col gap-unit-xs">
+          <label for="tx-category" data-design-text-token="label-lg" class="font-label text-label-lg">Kategori</label>
+          <select id="tx-category" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-md py-unit-sm font-body text-body-md focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="Makan &amp; Minum" selected>Makan &amp; Minum</option>
+            <option value="Transportasi">Transportasi</option>
+            <option value="Tabungan">Tabungan</option>
+            <option value="Belanja">Belanja</option>
+            <option value="Uang Saku">Uang Saku</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+
+        <!-- Note (Optional) -->
+        <div class="flex flex-col gap-unit-xs">
+          <label for="tx-note" data-design-text-token="label-lg" class="font-label text-label-lg">Catatan (opsional)</label>
+          <input id="tx-note" type="text" placeholder="Tambahkan catatan..." class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-md py-unit-sm font-body text-body-md focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+
+        <!-- Date -->
+        <div class="flex flex-col gap-unit-xs">
+          <label for="tx-date" data-design-text-token="label-lg" class="font-label text-label-lg">Tanggal</label>
+          <input id="tx-date" type="date" value="2026-11-19" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-md py-unit-sm font-mono text-mono-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+
+        <!-- Daily Logging XP Bonus Banner -->
+        <div class="bg-accent-container text-on-accent-container border-2 border-outline rounded-md px-unit-md py-unit-sm flex items-center gap-unit-sm">
+          <span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+          <p data-design-text-token="body-md" class="font-body text-body-md">Catat transaksi harian untuk bonus <span class="font-mono font-bold">+10 XP</span></p>
+        </div>
+
+        <!-- Save Feedback (Hidden until submitted) -->
+        <div id="tx-feedback" class="hidden bg-surface-container-high text-on-surface-container-high border-2 border-outline rounded-md px-unit-md py-unit-sm text-center">
+          <span id="tx-feedback-text" data-design-text-token="label-lg" class="font-label text-label-lg"></span>
+        </div>
+
+        <!-- Primary Submit CTA -->
+        <button data-component-id="button-primary" data-component-type="button" data-component-variant="primary" type="submit" class="w-full flex items-center justify-center gap-unit-sm bg-primary text-on-primary border-2 border-outline rounded-lg py-unit-md pixel-shadow-md active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+          <span class="material-symbols-outlined text-accent text-[20px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">auto_awesome</span>
+          <span data-design-text-token="title-md" class="font-title text-title-md">Simpan Transaksi</span>
+        </button>
+
+      </form>
+    </main>
+
+  </div>
+
+  <script>
+    (function () {
+      var typeBtns = document.querySelectorAll('.tx-type-btn');
+      var activeType = 'Pengeluaran';
+      var form = document.getElementById('add-tx-form');
+      var feedback = document.getElementById('tx-feedback');
+      var feedbackText = document.getElementById('tx-feedback-text');
+
+      typeBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activeType = btn.getAttribute('data-type');
+          typeBtns.forEach(function (b) {
+            b.classList.remove('bg-success', 'text-on-success', 'bg-error', 'text-on-error');
+            b.classList.add('bg-surface-container', 'text-on-surface-container');
+          });
+          btn.classList.remove('bg-surface-container', 'text-on-surface-container');
+          if (activeType === 'Pemasukan') {
+            btn.classList.add('bg-success', 'text-on-success');
+          } else {
+            btn.classList.add('bg-error', 'text-on-error');
+          }
+        });
+      });
+
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var amountInput = document.getElementById('tx-amount');
+          var amount = amountInput && amountInput.value.trim() ? amountInput.value.trim() : '0';
+          if (feedback && feedbackText) {
+            feedbackText.textContent = activeType + ' Rp ' + amount + ' tersimpan! (+10 XP)';
+            feedback.classList.remove('hidden');
+          }
+        });
+      }
+    })();
+  </script>
+
+
+</body></html>

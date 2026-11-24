@@ -1,0 +1,615 @@
+<!DOCTYPE html><html lang="id"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quests — Quest Board | Remindo</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#6D3FA8',
+        'on-primary': '#FFFFFF',
+        'primary-container': '#8B5CF6',
+        'on-primary-container': '#0F0F0F',
+        'secondary': '#D9468F',
+        'on-secondary': '#161616',
+        'secondary-container': '#FCE7F3',
+        'on-secondary-container': '#831843',
+        'accent': '#F59E0B',
+        'on-accent': '#2D1B4E',
+        'accent-container': '#FEF3C7',
+        'on-accent-container': '#78350F',
+        'surface': '#F3E8FF',
+        'on-surface': '#2D1B4E',
+        'surface-container-low': '#FFF8EB',
+        'on-surface-container-low': '#2D1B4E',
+        'surface-container': '#F7ECFF',
+        'on-surface-container': '#2D1B4E',
+        'surface-container-high': '#E9D5FF',
+        'on-surface-container-high': '#2D1B4E',
+        'surface-nav': '#4A2E70',
+        'on-surface-nav': '#FFFFFF',
+        'outline': '#4A2E70',
+        'outline-variant': '#D8B4FE',
+        'success': '#2E8B57',
+        'on-success': '#0F0F0F',
+        'warning': '#D97706',
+        'on-warning': '#2A2A2A',
+        'error': '#DC2626',
+        'on-error': '#FFFFFF',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '12px',
+        'md': '14px',
+        'lg': '18px',
+        'xl': '24px',
+        'full': '9999px',
+      },
+      spacing: {
+        'unit-xs': '4px',
+        'unit-sm': '8px',
+        'unit-md': '12px',
+        'unit-lg': '16px',
+        'unit-xl': '24px',
+        'page-margin': '16px',
+        'nav-height': '72px',
+      },
+      fontFamily: {
+        'display': ['"Boogaloo"', 'sans-serif'],
+        'headline': ['"Boogaloo"', 'sans-serif'],
+        'title': ['"Capriola"', 'sans-serif'],
+        'body': ['"Capriola"', 'sans-serif'],
+        'label': ['"Capriola"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['44px', { lineHeight: '48px', letterSpacing: '0px', fontWeight: '400' }],
+        'display-lg-mobile': ['32px', { lineHeight: '36px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-lg': ['28px', { lineHeight: '34px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['13px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '400' }],
+        'mono-lg': ['20px', { lineHeight: '24px', letterSpacing: '-0.2px', fontWeight: '700' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '600' }],
+      },
+      transitionDuration: {
+        'button-press': '100ms',
+        'surface-enter': '220ms',
+      },
+      transitionDelay: {
+        'button-press': '0ms',
+        'surface-enter': '0ms',
+      },
+      transitionTimingFunction: {
+        'button-press': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&amp;family=Capriola&amp;family=Spline+Sans+Mono:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .pixel-shadow-sm {
+      box-shadow: 0 2px 0 #2D1B4E;
+    }
+    .pixel-shadow-md {
+      box-shadow: 0 4px 0 #2D1B4E;
+    }
+    .pixel-shadow-card {
+      box-shadow: 0 4px 0 rgba(74, 46, 112, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+  <div class="min-h-[884px] max-w-md mx-auto flex flex-col bg-surface border-x-2 border-outline relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Top Status HUD (Shell parity with Home) -->
+    <header class="bg-surface-nav text-on-surface-nav border-b-2 border-outline px-unit-md py-unit-sm z-20">
+      <div class="flex items-center justify-between gap-unit-sm">
+        <div class="flex flex-col items-center justify-center bg-primary text-on-primary border-2 border-outline rounded-md px-unit-sm py-unit-xs pixel-shadow-sm shrink-0">
+          <span data-design-text-token="label-sm" class="font-label text-label-sm leading-none">Hero</span>
+          <span data-design-text-token="headline-md" class="font-headline text-headline-md leading-none">Lv.1</span>
+        </div>
+
+        <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+          <div class="flex items-center justify-between">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">XP Hero</span>
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">35 / 100</span>
+          </div>
+          <div class="w-full h-4 bg-surface-container-high border-2 border-outline rounded-full overflow-hidden p-0">
+            <div class="h-full bg-success rounded-full" style="width: 35%;"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-unit-xs bg-primary text-on-primary border-2 border-outline rounded-full px-unit-md py-unit-xs pixel-shadow-sm shrink-0">
+          <span class="material-symbols-outlined text-accent text-[20px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+          <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">120</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Quest Board Content -->
+    <main class="flex-1 flex flex-col gap-unit-md p-unit-lg">
+
+      <!-- Ribbon Header -->
+      <div class="flex items-center justify-center">
+        <div class="bg-primary text-on-primary border-2 border-outline rounded-lg px-unit-xl py-unit-sm pixel-shadow-md">
+          <h1 data-design-text-token="headline-lg" class="font-headline text-headline-lg text-center">Quest Board</h1>
+        </div>
+      </div>
+
+      <!-- Quest Category Tabs: Daily | Weekly | Epic | Timed -->
+      <div role="tablist" aria-label="Kategori Quest" class="grid grid-cols-4 gap-unit-xs">
+        <button id="tab-daily" role="tab" aria-selected="true" aria-controls="panel-daily" type="button" class="quest-tab bg-secondary text-on-secondary border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+          <span data-design-text-token="label-lg" class="font-label text-label-lg">Daily</span>
+        </button>
+
+        <button id="tab-weekly" role="tab" aria-selected="false" aria-controls="panel-weekly" type="button" class="quest-tab bg-primary text-on-primary border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+          <span data-design-text-token="label-lg" class="font-label text-label-lg">Weekly</span>
+        </button>
+
+        <button id="tab-epic" role="tab" aria-selected="false" aria-controls="panel-epic" type="button" class="quest-tab bg-primary text-on-primary border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+          <span data-design-text-token="label-lg" class="font-label text-label-lg">Epic</span>
+        </button>
+
+        <button id="tab-timed" role="tab" aria-selected="false" aria-controls="panel-timed" type="button" class="quest-tab bg-primary text-on-primary border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+          <span data-design-text-token="label-lg" class="font-label text-label-lg">Timed</span>
+        </button>
+      </div>
+
+      <!-- DAILY TAB PANEL -->
+      <section id="panel-daily" role="tabpanel" aria-labelledby="tab-daily" class="flex flex-col gap-unit-md">
+        <!-- Quest 1: Ber-Timer (Wajib Selesai Timer Baru Bisa Dicentang) -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex items-start gap-unit-md">
+          <div class="w-12 h-12 bg-surface-container-high border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-primary text-[28px]" aria-hidden="true">timer</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Baca 20 halaman buku</h2>
+              <span class="bg-warning text-on-warning border border-outline rounded-sm px-unit-xs py-0 shrink-0">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Normal</span>
+              </span>
+            </div>
+            <div class="flex items-center justify-between gap-unit-sm">
+              <div class="flex items-center gap-unit-md">
+                <span class="inline-flex items-center gap-unit-xs">
+                  <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+                  <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+60 XP</span>
+                </span>
+                <span class="inline-flex items-center gap-unit-xs">
+                  <span class="material-symbols-outlined text-accent text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+                  <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">30</span>
+                </span>
+              </div>
+              <span class="bg-primary text-on-primary border border-outline rounded-sm px-unit-xs py-0 shrink-0">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Timer 25m</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-sm">
+              <div class="flex-1 h-4 bg-surface-container-high border-2 border-outline rounded-full overflow-hidden">
+                <div id="timer-quest-bar" class="h-full bg-primary" style="width: 50%;"></div>
+              </div>
+              <span id="timer-quest-progress" data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">12:30 / 25:00</span>
+            </div>
+            <div class="flex items-center justify-between gap-unit-sm pt-unit-xs">
+              <button id="timer-quest-check" type="button" disabled class="inline-flex items-center gap-unit-xs bg-surface-container-high text-on-surface-container-high border-2 border-outline rounded-md px-unit-sm py-unit-xs opacity-70 cursor-not-allowed">
+                <span id="timer-quest-lock-icon" class="material-symbols-outlined text-[16px]" aria-hidden="true">lock</span>
+                <span id="timer-quest-lock-text" data-design-text-token="label-sm" class="font-label text-label-sm">Selesaikan timer</span>
+              </button>
+              <a id="timer-quest-start" href="#timed-quest" class="inline-flex items-center gap-unit-xs bg-secondary text-on-secondary border-2 border-outline rounded-md px-unit-sm py-unit-xs pixel-shadow-sm">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">play_arrow</span>
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Mulai Timer</span>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Quest 2: Completed (Easy) -->
+        <article data-component-id="card-completed" data-component-type="card" data-component-variant="filled" class="bg-accent-container text-on-accent-container border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex items-center gap-unit-md">
+          <div class="w-12 h-12 bg-surface-container-low border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-success text-[28px]" aria-hidden="true">edit_note</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Belajar Kalkulus 1 jam</h2>
+              <span class="inline-flex items-center justify-center w-7 h-7 bg-success text-on-success border-2 border-outline rounded-md shrink-0" aria-label="Selesai">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">check</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-md">
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+30 XP</span>
+              </span>
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-accent text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">15</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-sm">
+              <div class="flex-1 h-4 bg-surface-container-low border-2 border-outline rounded-full overflow-hidden">
+                <div class="h-full bg-success" style="width: 100%;"></div>
+              </div>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">Selesai</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Quest 3: Pengingat (Langsung Centang) -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex items-center gap-unit-md">
+          <div class="w-12 h-12 bg-surface-container-high border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-primary text-[28px]" aria-hidden="true">water_drop</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Minum 8 gelas air</h2>
+              <button type="button" aria-label="Centang selesai Minum 8 gelas air" class="quest-check-btn inline-flex items-center justify-center w-8 h-8 bg-surface-container border-2 border-outline rounded-md shrink-0 pixel-shadow-sm">
+                <span class="material-symbols-outlined text-[20px]" aria-hidden="true">check_box_outline_blank</span>
+              </button>
+            </div>
+            <div class="flex items-center justify-between gap-unit-sm">
+              <div class="flex items-center gap-unit-md">
+                <span class="inline-flex items-center gap-unit-xs">
+                  <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+                  <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+30 XP</span>
+                </span>
+                <span class="inline-flex items-center gap-unit-xs">
+                  <span class="material-symbols-outlined text-accent text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+                  <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">15</span>
+                </span>
+              </div>
+              <span class="bg-success text-on-success border border-outline rounded-sm px-unit-xs py-0 shrink-0">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Pengingat</span>
+              </span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Quest 4: Pengingat + Alarm ON (Langsung Centang) -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex items-center gap-unit-md">
+          <div class="w-12 h-12 bg-secondary-container border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-error text-[28px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">alarm</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Kumpulkan Tugas PBO</h2>
+              <button type="button" aria-label="Centang selesai Kumpulkan Tugas PBO" class="quest-check-btn inline-flex items-center justify-center w-8 h-8 bg-surface-container border-2 border-outline rounded-md shrink-0 pixel-shadow-sm">
+                <span class="material-symbols-outlined text-[20px]" aria-hidden="true">check_box_outline_blank</span>
+              </button>
+            </div>
+            <div class="flex items-center justify-between gap-unit-sm">
+              <div class="flex items-center gap-unit-md">
+                <span class="inline-flex items-center gap-unit-xs">
+                  <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+                  <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+120 XP</span>
+                </span>
+                <span class="inline-flex items-center gap-unit-xs">
+                  <span class="material-symbols-outlined text-accent text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+                  <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">60</span>
+                </span>
+              </div>
+              <span class="inline-flex items-center gap-unit-xs text-error">
+                <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">notifications_active</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">19:00</span>
+              </span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- WEEKLY TAB PANEL (Hidden by default) -->
+      <section id="panel-weekly" role="tabpanel" aria-labelledby="tab-weekly" class="flex flex-col gap-unit-md hidden">
+        <!-- Weekly Quest 1 -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex items-center gap-unit-md">
+          <div class="w-12 h-12 bg-surface-container-high border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-primary text-[28px]" aria-hidden="true">school</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Review catatan kuliah</h2>
+              <span class="bg-warning text-on-warning border border-outline rounded-sm px-unit-xs py-0 shrink-0">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Normal</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-md">
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+60 XP</span>
+              </span>
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-accent text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">30</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-sm">
+              <div class="flex-1 h-4 bg-surface-container-high border-2 border-outline rounded-full overflow-hidden">
+                <div class="h-full bg-primary" style="width: 66%;"></div>
+              </div>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">2/3</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Weekly Quest 2 -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex items-center gap-unit-md">
+          <div class="w-12 h-12 bg-secondary-container border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-primary text-[28px]" aria-hidden="true">fitness_center</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Olahraga 3x seminggu</h2>
+              <span class="bg-error text-on-error border border-outline rounded-sm px-unit-xs py-0 shrink-0">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Hard</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-md">
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+120 XP</span>
+              </span>
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-accent text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">60</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-sm">
+              <div class="flex-1 h-4 bg-surface-container-high border-2 border-outline rounded-full overflow-hidden">
+                <div class="h-full bg-primary" style="width: 33%;"></div>
+              </div>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">1/3</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Weekly Quest 3 -->
+        <article data-component-id="card-completed" data-component-type="card" data-component-variant="filled" class="bg-accent-container text-on-accent-container border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex items-center gap-unit-md">
+          <div class="w-12 h-12 bg-surface-container-low border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-success text-[28px]" aria-hidden="true">cleaning_services</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Rapikan meja belajar</h2>
+              <span class="inline-flex items-center justify-center w-6 h-6 bg-success text-on-success border-2 border-outline rounded-full shrink-0" aria-label="Selesai">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">check</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-md">
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+30 XP</span>
+              </span>
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-accent text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">15</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-sm">
+              <div class="flex-1 h-4 bg-surface-container-low border-2 border-outline rounded-full overflow-hidden">
+                <div class="h-full bg-success" style="width: 100%;"></div>
+              </div>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">1/1</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- EPIC TAB PANEL (Hidden by default) -->
+      <section id="panel-epic" role="tabpanel" aria-labelledby="tab-epic" class="flex flex-col gap-unit-md hidden">
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex items-center gap-unit-md">
+          <div class="w-12 h-12 bg-accent-container border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-on-accent-container text-[28px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">emoji_events</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Selesaikan Bab 1 Skripsi</h2>
+              <span class="bg-error text-on-error border border-outline rounded-sm px-unit-xs py-0 shrink-0">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Hard</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-md">
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-primary text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+120 XP</span>
+              </span>
+              <span class="inline-flex items-center gap-unit-xs">
+                <span class="material-symbols-outlined text-accent text-[16px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">60</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-unit-sm">
+              <div class="flex-1 h-4 bg-surface-container-high border-2 border-outline rounded-full overflow-hidden">
+                <div class="h-full bg-primary" style="width: 40%;"></div>
+              </div>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">2/5</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- TIMED TAB PANEL (Hidden by default) -->
+      <section id="panel-timed" role="tabpanel" aria-labelledby="tab-timed" class="flex flex-col gap-unit-md hidden">
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex items-center gap-unit-md">
+          <div class="w-12 h-12 bg-secondary-container border-2 border-outline rounded-md flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-error text-[28px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">alarm</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+            <div class="flex items-center justify-between gap-unit-xs">
+              <h2 data-design-text-token="title-md" class="font-title text-title-md">Kumpulkan Tugas PBO</h2>
+              <span class="bg-error text-on-error border border-outline rounded-sm px-unit-xs py-0 shrink-0">
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">TIMED</span>
+              </span>
+            </div>
+            <div class="flex items-center justify-between gap-unit-sm">
+              <span class="inline-flex items-center gap-unit-xs text-error">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">schedule</span>
+                <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">02:15:30 tersisa</span>
+              </span>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">Alarm 19:00</span>
+            </div>
+            <div class="flex justify-end pt-unit-xs">
+              <a href="#timed-quest" class="inline-flex items-center gap-unit-xs bg-secondary text-on-secondary border-2 border-outline rounded-md px-unit-sm py-unit-xs pixel-shadow-sm">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">play_arrow</span>
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Mulai Fokus</span>
+              </a>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- Streak Banner -->
+      <div class="bg-primary text-on-primary border-2 border-outline rounded-lg px-unit-lg py-unit-sm pixel-shadow-sm flex items-center justify-center gap-unit-sm">
+        <span class="material-symbols-outlined text-accent text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">local_fire_department</span>
+        <span data-design-text-token="headline-md" class="font-headline text-headline-md">12 Hari Streak! (+20% XP)</span>
+      </div>
+
+      <!-- Riwayat & Statistik Quest Link -->
+      <a id="quest-history-btn" href="#quest-history" class="w-full flex items-center justify-between gap-unit-sm bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg px-unit-md py-unit-sm pixel-shadow-sm active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+        <span class="inline-flex items-center gap-unit-sm">
+          <span class="material-symbols-outlined text-primary text-[22px]" aria-hidden="true">history</span>
+          <span data-design-text-token="label-lg" class="font-label text-label-lg">Riwayat &amp; Statistik Quest</span>
+        </span>
+        <span class="material-symbols-outlined text-primary text-[20px]" aria-hidden="true">chevron_right</span>
+      </a>
+
+    </main>
+
+    <!-- Bottom Navigation Bar (Shell parity with Home, Quests active) -->
+    <nav aria-label="Navigasi utama" class="bg-surface-nav text-on-surface-nav border-t-2 border-outline px-unit-sm py-unit-sm z-20">
+      <div class="grid grid-cols-5 items-center gap-unit-xs">
+        <!-- Home -->
+        <a href="#home" class="flex flex-col items-center justify-center gap-0 text-on-surface-nav py-unit-xs rounded-md">
+          <span class="material-symbols-outlined text-[24px]" aria-hidden="true">home</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Home</span>
+        </a>
+
+        <!-- Quests (Active) -->
+        <a href="#quests" aria-current="page" class="flex flex-col items-center justify-center gap-0 bg-primary text-on-primary border-2 border-outline-variant rounded-md py-unit-xs">
+          <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">assignment</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Quests</span>
+        </a>
+
+        <!-- Center (+) Quick Add Button -->
+        <div class="flex justify-center">
+          <button data-component-id="button-secondary" data-component-type="button" data-component-variant="secondary" type="button" aria-label="Tambah quest baru" class="w-12 h-12 flex items-center justify-center bg-secondary text-on-secondary border-2 border-outline rounded-lg pixel-shadow-sm active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+            <span class="material-symbols-outlined text-[28px]" aria-hidden="true">add</span>
+          </button>
+        </div>
+
+        <!-- Wallet -->
+        <a href="#wallet" class="flex flex-col items-center justify-center gap-0 text-on-surface-nav py-unit-xs rounded-md">
+          <span class="material-symbols-outlined text-[24px]" aria-hidden="true">account_balance_wallet</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Wallet</span>
+        </a>
+
+        <!-- Hero -->
+        <a href="#hero" class="flex flex-col items-center justify-center gap-0 text-on-surface-nav py-unit-xs rounded-md">
+          <span class="material-symbols-outlined text-[24px]" aria-hidden="true">person</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Hero</span>
+        </a>
+      </div>
+    </nav>
+
+  </div>
+
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll('.quest-tab');
+      var panels = document.querySelectorAll('[role="tabpanel"]');
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var targetId = tab.getAttribute('aria-controls');
+
+          tabs.forEach(function (t) {
+            t.setAttribute('aria-selected', 'false');
+            t.classList.remove('bg-secondary', 'text-on-secondary');
+            t.classList.add('bg-primary', 'text-on-primary');
+          });
+
+          tab.setAttribute('aria-selected', 'true');
+          tab.classList.remove('bg-primary', 'text-on-primary');
+          tab.classList.add('bg-secondary', 'text-on-secondary');
+
+          panels.forEach(function (panel) {
+            if (panel.id === targetId) {
+              panel.classList.remove('hidden');
+            } else {
+              panel.classList.add('hidden');
+            }
+          });
+        });
+      });
+      var checkBtns = document.querySelectorAll('.quest-check-btn');
+      checkBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var icon = btn.querySelector('.material-symbols-outlined');
+          var isDone = btn.getAttribute('data-done') === 'true';
+          if (!isDone) {
+            btn.setAttribute('data-done', 'true');
+            btn.classList.remove('bg-surface-container');
+            btn.classList.add('bg-success', 'text-on-success');
+            if (icon) icon.textContent = 'check';
+          } else {
+            btn.setAttribute('data-done', 'false');
+            btn.classList.remove('bg-success', 'text-on-success');
+            btn.classList.add('bg-surface-container');
+            if (icon) icon.textContent = 'check_box_outline_blank';
+          }
+        });
+      });
+
+      var timerStartBtn = document.getElementById('timer-quest-start');
+      var timerCheckBtn = document.getElementById('timer-quest-check');
+      var timerBar = document.getElementById('timer-quest-bar');
+      var timerProgress = document.getElementById('timer-quest-progress');
+      var timerLockIcon = document.getElementById('timer-quest-lock-icon');
+      var timerLockText = document.getElementById('timer-quest-lock-text');
+
+      if (timerStartBtn && timerCheckBtn) {
+        timerStartBtn.addEventListener('click', function () {
+          if (timerBar) {
+            timerBar.style.width = '100%';
+            timerBar.classList.remove('bg-primary');
+            timerBar.classList.add('bg-success');
+          }
+          if (timerProgress) timerProgress.textContent = '25:00 / 25:00';
+          timerCheckBtn.disabled = false;
+          timerCheckBtn.classList.remove('bg-surface-container-high', 'text-on-surface-container-high', 'opacity-70', 'cursor-not-allowed');
+          timerCheckBtn.classList.add('bg-success', 'text-on-success', 'pixel-shadow-sm');
+          if (timerLockIcon) timerLockIcon.textContent = 'check_box_outline_blank';
+          if (timerLockText) timerLockText.textContent = 'Centang Selesai';
+          timerStartBtn.classList.add('hidden');
+        });
+
+        timerCheckBtn.addEventListener('click', function () {
+          if (timerCheckBtn.disabled) return;
+          if (timerLockIcon) timerLockIcon.textContent = 'check_box';
+          if (timerLockText) timerLockText.textContent = 'Selesai (+60 XP)';
+        });
+      }
+    })();
+  </script>
+
+
+</body></html>

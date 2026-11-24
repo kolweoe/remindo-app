@@ -1,0 +1,429 @@
+<!DOCTYPE html><html lang="id"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet — Dompetku | Remindo</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#6D3FA8',
+        'on-primary': '#FFFFFF',
+        'primary-container': '#8B5CF6',
+        'on-primary-container': '#0F0F0F',
+        'secondary': '#D9468F',
+        'on-secondary': '#161616',
+        'secondary-container': '#FCE7F3',
+        'on-secondary-container': '#831843',
+        'accent': '#F59E0B',
+        'on-accent': '#2D1B4E',
+        'accent-container': '#FEF3C7',
+        'on-accent-container': '#78350F',
+        'surface': '#F3E8FF',
+        'on-surface': '#2D1B4E',
+        'surface-container-low': '#FFF8EB',
+        'on-surface-container-low': '#2D1B4E',
+        'surface-container': '#F7ECFF',
+        'on-surface-container': '#2D1B4E',
+        'surface-container-high': '#E9D5FF',
+        'on-surface-container-high': '#2D1B4E',
+        'surface-nav': '#4A2E70',
+        'on-surface-nav': '#FFFFFF',
+        'outline': '#4A2E70',
+        'outline-variant': '#D8B4FE',
+        'success': '#2E8B57',
+        'on-success': '#0F0F0F',
+        'warning': '#D97706',
+        'on-warning': '#2A2A2A',
+        'error': '#DC2626',
+        'on-error': '#FFFFFF',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '12px',
+        'md': '14px',
+        'lg': '18px',
+        'xl': '24px',
+        'full': '9999px',
+      },
+      spacing: {
+        'unit-xs': '4px',
+        'unit-sm': '8px',
+        'unit-md': '12px',
+        'unit-lg': '16px',
+        'unit-xl': '24px',
+        'page-margin': '16px',
+        'nav-height': '72px',
+      },
+      fontFamily: {
+        'display': ['"Boogaloo"', 'sans-serif'],
+        'headline': ['"Boogaloo"', 'sans-serif'],
+        'title': ['"Capriola"', 'sans-serif'],
+        'body': ['"Capriola"', 'sans-serif'],
+        'label': ['"Capriola"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['44px', { lineHeight: '48px', letterSpacing: '0px', fontWeight: '400' }],
+        'display-lg-mobile': ['32px', { lineHeight: '36px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-lg': ['28px', { lineHeight: '34px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['13px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '400' }],
+        'mono-lg': ['20px', { lineHeight: '24px', letterSpacing: '-0.2px', fontWeight: '700' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '600' }],
+      },
+      transitionDuration: {
+        'button-press': '100ms',
+        'surface-enter': '220ms',
+      },
+      transitionDelay: {
+        'button-press': '0ms',
+        'surface-enter': '0ms',
+      },
+      transitionTimingFunction: {
+        'button-press': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&amp;family=Capriola&amp;family=Spline+Sans+Mono:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .pixel-shadow-sm {
+      box-shadow: 0 2px 0 #2D1B4E;
+    }
+    .pixel-shadow-md {
+      box-shadow: 0 4px 0 #2D1B4E;
+    }
+    .pixel-shadow-card {
+      box-shadow: 0 4px 0 rgba(74, 46, 112, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+  <div class="min-h-[884px] max-w-md mx-auto flex flex-col bg-surface border-x-2 border-outline relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Top Status HUD (Shell parity with Home & Quests) -->
+    <header class="bg-surface-nav text-on-surface-nav border-b-2 border-outline px-unit-md py-unit-sm z-20">
+      <div class="flex items-center justify-between gap-unit-sm">
+        <div class="flex flex-col items-center justify-center bg-primary text-on-primary border-2 border-outline rounded-md px-unit-sm py-unit-xs pixel-shadow-sm shrink-0">
+          <span data-design-text-token="label-sm" class="font-label text-label-sm leading-none">Hero</span>
+          <span data-design-text-token="headline-md" class="font-headline text-headline-md leading-none">Lv.1</span>
+        </div>
+
+        <div class="flex-1 flex flex-col gap-unit-xs min-w-0">
+          <div class="flex items-center justify-between">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">XP Hero</span>
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">35 / 100</span>
+          </div>
+          <div class="w-full h-4 bg-surface-container-high border-2 border-outline rounded-full overflow-hidden p-0">
+            <div class="h-full bg-success rounded-full" style="width: 35%;"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-unit-xs bg-primary text-on-primary border-2 border-outline rounded-full px-unit-md py-unit-xs pixel-shadow-sm shrink-0">
+          <span class="material-symbols-outlined text-accent text-[20px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+          <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">120</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Wallet Content -->
+    <main class="flex-1 flex flex-col gap-unit-md p-unit-lg">
+
+      <!-- Ribbon Header -->
+      <div class="flex items-center justify-center">
+        <div class="bg-primary text-on-primary border-2 border-outline rounded-lg px-unit-xl py-unit-sm pixel-shadow-md flex items-center gap-unit-sm">
+          <span class="material-symbols-outlined text-accent text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">account_balance_wallet</span>
+          <h1 data-design-text-token="headline-lg" class="font-headline text-headline-lg text-center">Dompetku</h1>
+        </div>
+      </div>
+
+      <!-- Balance & Income/Expense Card -->
+      <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex flex-col gap-unit-md">
+        <div class="flex items-center gap-unit-md">
+          <div class="w-14 h-14 bg-accent-container border-2 border-outline rounded-lg flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-on-accent-container text-[32px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">wallet</span>
+          </div>
+          <div class="flex-1 flex flex-col gap-0 min-w-0">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Saldo Saat Ini</span>
+            <p data-design-text-token="display-lg-mobile" class="font-mono text-display-lg-mobile tabular-nums leading-tight">Rp 245.750</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-unit-sm">
+          <div class="bg-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-xs flex flex-col gap-0">
+            <span class="inline-flex items-center gap-unit-xs text-on-surface-container">
+              <span class="material-symbols-outlined text-success text-[16px]" aria-hidden="true">arrow_upward</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Pemasukan</span>
+            </span>
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">Rp 120.000</span>
+          </div>
+
+          <div class="bg-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-xs flex flex-col gap-0">
+            <span class="inline-flex items-center gap-unit-xs text-on-surface-container">
+              <span class="material-symbols-outlined text-error text-[16px]" aria-hidden="true">arrow_downward</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Pengeluaran</span>
+            </span>
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">Rp 75.250</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Earned Coins Strip -->
+      <div class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg px-unit-md py-unit-sm pixel-shadow-card flex items-center justify-between gap-unit-sm">
+        <div class="flex items-center gap-unit-sm">
+          <span class="material-symbols-outlined text-accent text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+          <span data-design-text-token="title-md" class="font-mono text-title-md tabular-nums">120 Coin</span>
+        </div>
+        <span data-design-text-token="label-sm" class="font-label text-label-sm">Hasil dari quest</span>
+      </div>
+
+      <!-- Period Tabs & Weekly Spending Chart -->
+      <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex flex-col gap-unit-md">
+        <div role="tablist" aria-label="Periode grafik" class="grid grid-cols-3 gap-unit-xs">
+          <button type="button" role="tab" aria-selected="true" class="period-tab bg-primary text-on-primary border-2 border-outline rounded-md py-unit-xs text-center">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Minggu</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" class="period-tab bg-surface-container-high text-on-surface-container-high border-2 border-outline rounded-md py-unit-xs text-center">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Bulan</span>
+          </button>
+          <button type="button" role="tab" aria-selected="false" class="period-tab bg-surface-container-high text-on-surface-container-high border-2 border-outline rounded-md py-unit-xs text-center">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Tahun</span>
+          </button>
+        </div>
+
+        <!-- Bar Chart (Mon - Sun) -->
+        <div class="grid grid-cols-7 items-end gap-unit-sm h-28 pt-unit-sm border-b-2 border-outline-variant pb-unit-xs">
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-primary border-2 border-outline rounded-t-sm" style="height: 55%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Sen</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-secondary border-2 border-outline rounded-t-sm" style="height: 85%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Sel</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-success border-2 border-outline rounded-t-sm" style="height: 45%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Rab</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-primary border-2 border-outline rounded-t-sm" style="height: 65%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Kam</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-accent border-2 border-outline rounded-t-sm" style="height: 75%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Jum</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-secondary border-2 border-outline rounded-t-sm" style="height: 40%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Sab</span>
+          </div>
+          <div class="flex flex-col items-center justify-end h-full gap-unit-xs">
+            <div class="w-full bg-success border-2 border-outline rounded-t-sm" style="height: 25%;"></div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Min</span>
+          </div>
+        </div>
+
+        <!-- Category Quick Grid -->
+        <div class="grid grid-cols-5 gap-unit-xs">
+          <div class="bg-surface-container border-2 border-outline rounded-md p-unit-xs flex flex-col items-center gap-0">
+            <span class="material-symbols-outlined text-warning text-[20px]" aria-hidden="true">lunch_dining</span>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Makan</span>
+          </div>
+          <div class="bg-surface-container border-2 border-outline rounded-md p-unit-xs flex flex-col items-center gap-0">
+            <span class="material-symbols-outlined text-primary text-[20px]" aria-hidden="true">directions_bus</span>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Trans</span>
+          </div>
+          <div class="bg-surface-container border-2 border-outline rounded-md p-unit-xs flex flex-col items-center gap-0">
+            <span class="material-symbols-outlined text-secondary text-[20px]" aria-hidden="true">savings</span>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Tabung</span>
+          </div>
+          <div class="bg-surface-container border-2 border-outline rounded-md p-unit-xs flex flex-col items-center gap-0">
+            <span class="material-symbols-outlined text-primary text-[20px]" aria-hidden="true">shopping_bag</span>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Belanja</span>
+          </div>
+          <div class="bg-surface-container border-2 border-outline rounded-md p-unit-xs flex flex-col items-center gap-0">
+            <span class="material-symbols-outlined text-on-surface text-[20px]" aria-hidden="true">category</span>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Lain</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Recent Transactions -->
+      <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+        <div class="flex items-center justify-between">
+          <h2 data-design-text-token="title-md" class="font-title text-title-md">Transaksi Terbaru</h2>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm text-primary">Lihat Semua</span>
+        </div>
+
+        <div class="flex flex-col gap-unit-xs">
+          <div class="flex items-center justify-between gap-unit-sm py-unit-xs border-b border-outline-variant">
+            <div class="flex items-center gap-unit-sm">
+              <span class="material-symbols-outlined text-warning text-[20px]" aria-hidden="true">lunch_dining</span>
+              <span data-design-text-token="body-md" class="font-body text-body-md">Makan Siang</span>
+            </div>
+            <div class="flex items-center gap-unit-md">
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm text-error tabular-nums">-Rp 25.000</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">19 Nov</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-unit-sm py-unit-xs border-b border-outline-variant">
+            <div class="flex items-center gap-unit-sm">
+              <span class="material-symbols-outlined text-success text-[20px]" aria-hidden="true">redeem</span>
+              <span data-design-text-token="body-md" class="font-body text-body-md">Uang Saku</span>
+            </div>
+            <div class="flex items-center gap-unit-md">
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm text-on-surface-container-low tabular-nums">+Rp 120.000</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">19 Nov</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-unit-sm py-unit-xs">
+            <div class="flex items-center gap-unit-sm">
+              <span class="material-symbols-outlined text-primary text-[20px]" aria-hidden="true">directions_bus</span>
+              <span data-design-text-token="body-md" class="font-body text-body-md">Bus Kampus</span>
+            </div>
+            <div class="flex items-center gap-unit-md">
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm text-error tabular-nums">-Rp 10.000</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">18 Nov</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Savings Chest & Monthly Budget Row -->
+      <div class="grid grid-cols-2 gap-unit-sm items-stretch">
+        <!-- Savings Chest -->
+        <article data-component-id="card-action" data-component-type="card" data-component-variant="action" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex flex-col justify-between gap-unit-sm">
+          <div class="flex flex-col gap-unit-xs">
+            <div class="flex items-center gap-unit-xs">
+              <span class="material-symbols-outlined text-accent text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">inventory_2</span>
+              <h3 data-design-text-token="label-lg" class="font-label text-label-lg">Peti Tabungan</h3>
+            </div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Laptop Baru</span>
+            <div class="w-full h-3 bg-surface-container-high border border-outline rounded-full overflow-hidden">
+              <div class="h-full bg-success" style="width: 35%;"></div>
+            </div>
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">70 / 200 Coin</span>
+          </div>
+          <a href="#savings-chest" class="w-full bg-primary text-on-primary border-2 border-outline rounded-md py-unit-xs text-center pixel-shadow-sm">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Tabung</span>
+          </a>
+        </article>
+
+        <!-- Monthly Budget -->
+        <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg p-unit-md pixel-shadow-card flex flex-col justify-between gap-unit-sm">
+          <div class="flex flex-col gap-unit-xs">
+            <div class="flex items-center gap-unit-xs">
+              <span class="material-symbols-outlined text-secondary text-[22px]" aria-hidden="true">pie_chart</span>
+              <h3 data-design-text-token="label-lg" class="font-label text-label-lg">Anggaran</h3>
+            </div>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Terpakai 65%</span>
+            <div class="w-full h-3 bg-surface-container-high border border-outline rounded-full overflow-hidden">
+              <div class="h-full bg-error" style="width: 65%;"></div>
+            </div>
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">325K / 500K</span>
+          </div>
+        </article>
+      </div>
+
+      <!-- Financial Report Notification Settings Link -->
+      <a id="wallet-notif-btn" href="#wallet-notification" class="w-full flex items-center justify-between gap-unit-sm bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-lg px-unit-md py-unit-sm pixel-shadow-sm active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+        <div class="flex items-center gap-unit-sm min-w-0">
+          <span class="material-symbols-outlined text-primary text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">notifications_active</span>
+          <div class="flex flex-col gap-0 min-w-0">
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Notifikasi Laporan Keuangan</span>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">Sen–Min • 20:00</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-unit-xs shrink-0">
+          <span class="bg-success text-on-success border border-outline rounded-sm px-unit-xs py-0">
+            <span data-design-text-token="label-sm" class="font-label text-label-sm">AKTIF</span>
+          </span>
+          <span class="material-symbols-outlined text-primary text-[20px]" aria-hidden="true">chevron_right</span>
+        </div>
+      </a>
+
+      <!-- Add Transaction CTA -->
+      <a href="#add-transaction" data-component-id="button-primary" data-component-type="button" data-component-variant="primary" class="w-full flex items-center justify-center gap-unit-sm bg-primary text-on-primary border-2 border-outline rounded-lg py-unit-md pixel-shadow-md active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">add</span>
+        <span data-design-text-token="title-md" class="font-title text-title-md">Tambah Transaksi</span>
+      </a>
+
+    </main>
+
+    <!-- Bottom Navigation Bar (Shell parity, Wallet active) -->
+    <nav aria-label="Navigasi utama" class="bg-surface-nav text-on-surface-nav border-t-2 border-outline px-unit-sm py-unit-sm z-20">
+      <div class="grid grid-cols-5 items-center gap-unit-xs">
+        <a href="#home" class="flex flex-col items-center justify-center gap-0 text-on-surface-nav py-unit-xs rounded-md">
+          <span class="material-symbols-outlined text-[24px]" aria-hidden="true">home</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Home</span>
+        </a>
+
+        <a href="#quests" class="flex flex-col items-center justify-center gap-0 text-on-surface-nav py-unit-xs rounded-md">
+          <span class="material-symbols-outlined text-[24px]" aria-hidden="true">assignment</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Quests</span>
+        </a>
+
+        <div class="flex justify-center">
+          <button data-component-id="button-secondary" data-component-type="button" data-component-variant="secondary" type="button" aria-label="Tambah transaksi atau quest" class="w-12 h-12 flex items-center justify-center bg-secondary text-on-secondary border-2 border-outline rounded-lg pixel-shadow-sm active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+            <span class="material-symbols-outlined text-[28px]" aria-hidden="true">add</span>
+          </button>
+        </div>
+
+        <a href="#wallet" aria-current="page" class="flex flex-col items-center justify-center gap-0 bg-primary text-on-primary border-2 border-outline-variant rounded-md py-unit-xs">
+          <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">account_balance_wallet</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Wallet</span>
+        </a>
+
+        <a href="#hero" class="flex flex-col items-center justify-center gap-0 text-on-surface-nav py-unit-xs rounded-md">
+          <span class="material-symbols-outlined text-[24px]" aria-hidden="true">person</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Hero</span>
+        </a>
+      </div>
+    </nav>
+
+  </div>
+
+  <script>
+    (function () {
+      var periodTabs = document.querySelectorAll('.period-tab');
+      periodTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          periodTabs.forEach(function (t) {
+            t.setAttribute('aria-selected', 'false');
+            t.classList.remove('bg-primary', 'text-on-primary');
+            t.classList.add('bg-surface-container-high', 'text-on-surface-container-high');
+          });
+          tab.setAttribute('aria-selected', 'true');
+          tab.classList.remove('bg-surface-container-high', 'text-on-surface-container-high');
+          tab.classList.add('bg-primary', 'text-on-primary');
+        });
+      });
+    })();
+  </script>
+
+
+</body></html>

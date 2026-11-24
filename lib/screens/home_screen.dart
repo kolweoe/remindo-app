@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/providers/app_providers.dart';
+import '../core/router/app_router.dart';
+import '../core/theme/pixel_theme.dart';
 import '../core/utils/responsive.dart';
+import '../widgets/pixel_room_view.dart';
+import '../widgets/pixel_scaffold.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -9,360 +13,344 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final heroAsync = ref.watch(heroProfileProvider);
+    final questsAsync = ref.watch(questsProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF8B5CF6).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF8B5CF6)),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.bolt, color: Color(0xFFFBBF24), size: 18),
-                  SizedBox(width: 4),
-                  Text(
-                    'Remindo',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+    return PixelScaffold(
+      currentTabIndex: 0,
+      body: heroAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: PixelColors.badgePurple),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white70),
-            onPressed: () => Navigator.pushNamed(context, '#settings'),
-          ),
-        ],
-      ),
-      body: ResponsiveWrapper(
-        child: heroAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFF8B5CF6))),
-          error: (err, _) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
-          data: (hero) {
-            final xpProgress = hero.xpNext > 0 ? (hero.xp / hero.xpNext).clamp(0.0, 1.0) : 0.0;
+        error: (err, _) => Center(
+          child: Text('Error: $err', style: const TextStyle(color: PixelColors.redExpense)),
+        ),
+        data: (hero) {
+          final readyQuestsCount = questsAsync.maybeWhen(
+            data: (quests) => quests.where((q) => !q.isCompleted).length,
+            orElse: () => 3,
+          );
 
-            return SingleChildScrollView(
-              padding: EdgeInsets.all(Responsive.px(context, 16)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // --- TOP STATUS BAR: Level, Streak, Coins ---
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF334155)),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: Responsive.px(context, 14),
+              vertical: 12,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // ========================================================
+                // 1. TOP LOBBY ACTION BAR (Pengaturan & Upgrade Kamar)
+                // ========================================================
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Left: Buka Pengaturan ("Atur")
+                    InkWell(
+                      onTap: () => Navigator.pushNamed(context, AppRouter.settings),
+                      borderRadius: BorderRadius.circular(24),
+                      child: Container(
+                        height: 38,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: PixelDecorations.button(
+                          color: PixelColors.cardParchment,
+                          radius: 24,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Level Badge
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF8B5CF6),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    'Lv.${hero.level}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      hero.name,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    Text(
-                                      'XP: ${hero.xp} / ${hero.xpNext}',
-                                      style: const TextStyle(
-                                        color: Colors.white60,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            Container(
+                              width: 26,
+                              height: 26,
+                              decoration: BoxDecoration(
+                                color: PixelColors.badgePurple,
+                                borderRadius: BorderRadius.circular(13),
+                                border: Border.all(color: PixelColors.deepPurple, width: 1.5),
+                              ),
+                              child: const Icon(
+                                Icons.settings,
+                                size: 14,
+                                color: Colors.white,
+                              ),
                             ),
-
-                            // Coins & Streak
-                            Row(
-                              children: [
-                                // Streak
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEF4444).withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.local_fire_department, color: Color(0xFFEF4444), size: 16),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${hero.streakDays} Hari',
-                                        style: const TextStyle(
-                                          color: Color(0xFFEF4444),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-
-                                // Coins
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF59E0B).withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.monetization_on, color: Color(0xFFF59E0B), size: 16),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${hero.coins}',
-                                        style: const TextStyle(
-                                          color: Color(0xFFF59E0B),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                            const SizedBox(width: 6),
+                            const Text(
+                              'Atur',
+                              style: TextStyle(
+                                color: PixelColors.textDark,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                      ),
+                    ),
 
-                        // XP Progress Bar
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: LinearProgressIndicator(
-                            value: xpProgress,
-                            backgroundColor: const Color(0xFF0F172A),
-                            color: const Color(0xFF8B5CF6),
-                            minHeight: 8,
+                    // Right: Upgrade Kamar Button (Gold with 200 Coin Badge)
+                    InkWell(
+                      onTap: () => Navigator.pushNamed(context, AppRouter.roomUpgrade),
+                      borderRadius: BorderRadius.circular(24),
+                      child: Container(
+                        height: 38,
+                        padding: const EdgeInsets.only(left: 12, right: 6),
+                        decoration: PixelDecorations.button(
+                          color: PixelColors.coinGold,
+                          radius: 24,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Upgrade Kamar',
+                              style: TextStyle(
+                                color: PixelColors.textDark,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              height: 26,
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: PixelColors.deepPurple,
+                                borderRadius: BorderRadius.circular(13),
+                                border: Border.all(color: PixelColors.deepPurple, width: 1.5),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('🪙', style: TextStyle(fontSize: 10)),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    '200',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // ========================================================
+                // 2. MAIN ROOM STAGE (Pixel Room Hero View)
+                // ========================================================
+                PixelRoomView(
+                  hero: hero,
+                  onUpgradeTap: () => Navigator.pushNamed(context, AppRouter.roomUpgrade),
+                  onCustomizeTap: () => Navigator.pushNamed(context, AppRouter.customize),
+                ),
+
+                const SizedBox(height: 12),
+
+                // ========================================================
+                // 3. BOTTOM OVERLAY: QUEST READY NOTIFICATION BUBBLE
+                // ========================================================
+                InkWell(
+                  onTap: () => Navigator.pushReplacementNamed(context, AppRouter.quests),
+                  borderRadius: BorderRadius.circular(18),
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: PixelDecorations.card(
+                      color: PixelColors.cardParchment,
+                      radius: 18,
+                    ),
+                    child: Row(
+                      children: [
+                        // Exclamation Badge
+                        Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: PixelColors.badgePurple,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: PixelColors.deepPurple, width: 1.5),
                           ),
+                          child: const Center(
+                            child: Text(
+                              '!',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+
+                        // Message Text
+                        Expanded(
+                          child: Text(
+                            '$readyQuestsCount quest siap dijalankan!',
+                            style: const TextStyle(
+                              color: PixelColors.textDark,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+
+                        // Chevron Action
+                        const Row(
+                          children: [
+                            Text(
+                              'Buka',
+                              style: TextStyle(
+                                color: PixelColors.badgePurple,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                            SizedBox(width: 2),
+                            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: PixelColors.coinGold),
+                          ],
                         ),
                       ],
                     ),
                   ),
+                ),
 
-                  const SizedBox(height: 20),
+                const SizedBox(height: 14),
 
-                  // --- HERO ROOM VIEW (Kamar Hero) ---
-                  Container(
-                    height: 260,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E293B),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.4), width: 2),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFF2E1065), Color(0xFF0F172A)],
+                // ========================================================
+                // 4. STREAK BANNER
+                // ========================================================
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: PixelColors.badgePurple,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: PixelColors.deepPurple, width: 2),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x334A2E70),
+                        offset: Offset(0, 2),
+                        blurRadius: 0,
                       ),
-                    ),
-                    child: Stack(
-                      children: [
-                        // Room Level Badge & Upgrade Button
-                        Positioned(
-                          top: 14,
-                          left: 14,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black45,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              'Kamar Hero Lv.${hero.roomLevel}',
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('🔥', style: TextStyle(fontSize: 20)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Streak: ${hero.streakDays} Hari Berturut-turut!',
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
+                                fontSize: 13,
                               ),
                             ),
-                          ),
-                        ),
-
-                        Positioned(
-                          top: 10,
-                          right: 14,
-                          child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF8B5CF6),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            const Text(
+                              'Selesaikan misi hari ini untuk bonus +20% XP & Koin!',
+                              style: TextStyle(
+                                color: Color(0xFFE9D5FF),
+                                fontSize: 11,
+                              ),
                             ),
-                            onPressed: () => Navigator.pushNamed(context, '#room-upgrade'),
-                            icon: const Icon(Icons.arrow_upward, size: 14),
-                            label: const Text('Upgrade', style: TextStyle(fontSize: 12)),
-                          ),
-                        ),
-
-                        // Center Character & Pet Representation
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF8B5CF6).withOpacity(0.3),
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: const Color(0xFFA78BFA), width: 2),
-                                ),
-                                child: const Icon(Icons.person, size: 48, color: Colors.white),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Kostum: ${hero.activeCostumeId}',
-                                style: const TextStyle(color: Colors.white70, fontSize: 11),
-                              ),
-                              Text(
-                                'Pet: ${hero.activePetId}',
-                                style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 11),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Kostum button bottom-left
-                        Positioned(
-                          bottom: 12,
-                          left: 14,
-                          child: TextButton.icon(
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.black38,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                            onPressed: () => Navigator.pushNamed(context, '#customize'),
-                            icon: const Icon(Icons.checkroom, size: 16),
-                            label: const Text('Ganti Kostum', style: TextStyle(fontSize: 11)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // --- QUICK ACTION SHORTCUTS ---
-                  const Text(
-                    'Menu Utama',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _MenuCard(
-                          icon: Icons.checklist_rtl_rounded,
-                          color: const Color(0xFF8B5CF6),
-                          title: 'Papan Quest',
-                          subtitle: 'Misi & XP',
-                          onTap: () => Navigator.pushNamed(context, '#quests'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _MenuCard(
-                          icon: Icons.timer_outlined,
-                          color: const Color(0xFF3B82F6),
-                          title: 'Mode Fokus',
-                          subtitle: 'Timer Belajar',
-                          onTap: () => Navigator.pushNamed(context, '#timed-quest'),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _MenuCard(
-                          icon: Icons.account_balance_wallet_rounded,
-                          color: const Color(0xFF10B981),
-                          title: 'Dompetku',
-                          subtitle: 'Uang Saku',
-                          onTap: () => Navigator.pushNamed(context, '#wallet'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _MenuCard(
-                          icon: Icons.savings_rounded,
-                          color: const Color(0xFFF59E0B),
-                          title: 'Peti Tabungan',
-                          subtitle: 'Target Hemat',
-                          onTap: () => Navigator.pushNamed(context, '#savings'),
-                        ),
-                      ),
-                    ],
+                ),
+
+                const SizedBox(height: 16),
+
+                // ========================================================
+                // 5. QUICK MENU CARDS
+                // ========================================================
+                const Text(
+                  'Fitur Utama Remindo',
+                  style: TextStyle(
+                    color: PixelColors.textDark,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
                   ),
-                ],
-              ),
-            );
-          },
-        ),
+                ),
+                const SizedBox(height: 10),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: _PixelMenuCard(
+                        icon: Icons.checklist_rounded,
+                        color: PixelColors.badgePurple,
+                        title: 'Papan Quest',
+                        subtitle: 'Misi & Pengingat',
+                        onTap: () => Navigator.pushReplacementNamed(context, AppRouter.quests),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _PixelMenuCard(
+                        icon: Icons.timer_outlined,
+                        color: PixelColors.blueFocus,
+                        title: 'Mode Fokus',
+                        subtitle: 'Timer Belajar Mahasiswa',
+                        onTap: () => Navigator.pushNamed(context, AppRouter.timedQuest),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _PixelMenuCard(
+                        icon: Icons.account_balance_wallet_rounded,
+                        color: PixelColors.greenSuccess,
+                        title: 'Dompetku',
+                        subtitle: 'Catatan Keuangan Saku',
+                        onTap: () => Navigator.pushReplacementNamed(context, AppRouter.wallet),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _PixelMenuCard(
+                        icon: Icons.savings_rounded,
+                        color: PixelColors.coinGold,
+                        title: 'Peti Tabungan',
+                        subtitle: 'Target Menabung',
+                        onTap: () => Navigator.pushNamed(context, AppRouter.savings),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-class _MenuCard extends StatelessWidget {
+class _PixelMenuCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
-  const _MenuCard({
+  const _PixelMenuCard({
     required this.icon,
     required this.color,
     required this.title,
@@ -374,13 +362,12 @@ class _MenuCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF334155)),
+        padding: const EdgeInsets.all(12),
+        decoration: PixelDecorations.card(
+          color: PixelColors.cardParchment,
+          radius: 14,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,27 +375,30 @@ class _MenuCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withOpacity(0.18),
                 borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: color, width: 1.5),
               ),
-              child: Icon(icon, color: color, size: 24),
+              child: Icon(icon, color: color, size: 22),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Text(
               title,
               style: const TextStyle(
-                color: Colors.white,
+                color: PixelColors.textDark,
                 fontWeight: FontWeight.bold,
-                fontSize: 14,
+                fontSize: 13,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               subtitle,
               style: const TextStyle(
-                color: Colors.white60,
-                fontSize: 11,
+                color: PixelColors.textMuted,
+                fontSize: 10,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

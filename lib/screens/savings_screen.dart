@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/providers/app_providers.dart';
+import '../core/theme/pixel_theme.dart';
 import '../core/utils/responsive.dart';
 import '../models/savings_goal.dart';
+import '../widgets/pixel_scaffold.dart';
 
 class SavingsScreen extends ConsumerWidget {
   const SavingsScreen({super.key});
@@ -11,57 +13,141 @@ class SavingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final goalsAsync = ref.watch(savingsGoalsProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-        title: const Text(
-          'Peti Tabungan',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-      ),
-      body: ResponsiveWrapper(
-        child: goalsAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFFF59E0B))),
-          error: (err, _) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
-          data: (goals) {
-            if (goals.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.savings_outlined, color: Colors.white38, size: 64),
-                    const SizedBox(height: 12),
-                    const Text('Belum ada target tabungan.', style: TextStyle(color: Colors.white54)),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF59E0B)),
-                      onPressed: () => _showAddGoalDialog(context, ref),
-                      child: const Text('Buat Target Tabungan', style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return ListView.separated(
-              padding: EdgeInsets.all(Responsive.px(context, 16)),
-              itemCount: goals.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 14),
-              itemBuilder: (context, index) {
-                final goal = goals[index];
-                return _SavingsCard(goal: goal);
-              },
-            );
-          },
-        ),
-      ),
+    return PixelScaffold(
+      showBackButton: true,
+      currentTabIndex: -1,
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFFF59E0B),
-        foregroundColor: Colors.white,
+        backgroundColor: PixelColors.coinGold,
+        foregroundColor: PixelColors.deepPurple,
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: PixelColors.deepPurple, width: 2),
+        ),
         onPressed: () => _showAddGoalDialog(context, ref),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, size: 28),
+      ),
+      body: Column(
+        children: [
+          // Ribbon Header
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              Responsive.px(context, 14),
+              12,
+              Responsive.px(context, 14),
+              8,
+            ),
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: PixelColors.badgePurple,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: PixelColors.deepPurple, width: 2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x334A2E70),
+                    offset: Offset(0, 3),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('📦', style: TextStyle(fontSize: 16)),
+                  SizedBox(width: 8),
+                  Text(
+                    'PETI TABUNGAN MAHASISWA',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      letterSpacing: 1.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Goals List
+          Expanded(
+            child: goalsAsync.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: PixelColors.badgePurple),
+              ),
+              error: (err, _) => Center(
+                child: Text('Error: $err', style: const TextStyle(color: PixelColors.redExpense)),
+              ),
+              data: (goals) {
+                if (goals.isEmpty) {
+                  return Center(
+                    child: Container(
+                      margin: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(24),
+                      decoration: PixelDecorations.card(
+                        color: PixelColors.cardParchment,
+                        radius: 16,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('🪙', style: TextStyle(fontSize: 36)),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Belum Ada Peti Tabungan',
+                            style: TextStyle(
+                              color: PixelColors.textDark,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Buat target tabungan pertamamu untuk memotivasi menyisihkan uang saku!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: PixelColors.textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: PixelColors.coinGold,
+                              foregroundColor: PixelColors.textDark,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: const BorderSide(color: PixelColors.deepPurple, width: 2),
+                              ),
+                            ),
+                            onPressed: () => _showAddGoalDialog(context, ref),
+                            child: const Text('Buat Target Tabungan 📦', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  padding: EdgeInsets.fromLTRB(
+                    Responsive.px(context, 14),
+                    6,
+                    Responsive.px(context, 14),
+                    80,
+                  ),
+                  itemCount: goals.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final goal = goals[index];
+                    return _PixelSavingsCard(goal: goal);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -73,27 +159,46 @@ class SavingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        title: const Text('Target Tabungan Baru', style: TextStyle(color: Colors.white, fontSize: 16)),
+        backgroundColor: PixelColors.cardParchment,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: PixelColors.deepPurple, width: 2),
+        ),
+        title: const Text(
+          '📦 Target Tabungan Baru',
+          style: TextStyle(color: PixelColors.textDark, fontSize: 16, fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                hintText: 'Nama Target (contoh: HP Baru)',
-                hintStyle: TextStyle(color: Colors.white38),
+              style: const TextStyle(color: PixelColors.textDark, fontWeight: FontWeight.bold),
+              decoration: InputDecoration(
+                hintText: 'Nama Target (contoh: HP Baru / Buku)',
+                hintStyle: const TextStyle(color: PixelColors.textMuted),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
+                ),
               ),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: targetController,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
+              style: const TextStyle(color: PixelColors.textDark, fontWeight: FontWeight.bold),
+              decoration: InputDecoration(
                 hintText: 'Target Jumlah (Rp)',
-                hintStyle: TextStyle(color: Colors.white38),
+                hintStyle: const TextStyle(color: PixelColors.textMuted),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
+                ),
               ),
             ),
           ],
@@ -101,10 +206,17 @@ class SavingsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal', style: TextStyle(color: Colors.white54)),
+            child: const Text('Batal', style: TextStyle(color: PixelColors.textMuted, fontWeight: FontWeight.bold)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF59E0B)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: PixelColors.coinGold,
+              foregroundColor: PixelColors.textDark,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
+              ),
+            ),
             onPressed: () {
               final title = titleController.text.trim();
               final target = int.tryParse(targetController.text.replaceAll(RegExp(r'[^0-9]'), ''));
@@ -119,7 +231,7 @@ class SavingsScreen extends ConsumerWidget {
                 Navigator.pop(ctx);
               }
             },
-            child: const Text('Buat Target', style: TextStyle(color: Colors.white)),
+            child: const Text('Simpan Target', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -127,10 +239,10 @@ class SavingsScreen extends ConsumerWidget {
   }
 }
 
-class _SavingsCard extends ConsumerWidget {
+class _PixelSavingsCard extends ConsumerWidget {
   final SavingsGoal goal;
 
-  const _SavingsCard({required this.goal});
+  const _PixelSavingsCard({required this.goal});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,11 +250,10 @@ class _SavingsCard extends ConsumerWidget {
     final percentInt = (progress * 100).toInt();
 
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF334155)),
+      padding: const EdgeInsets.all(14),
+      decoration: PixelDecorations.card(
+        color: PixelColors.cardParchment,
+        radius: 14,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -155,73 +266,106 @@ class _SavingsCard extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
+                      color: PixelColors.coinGold.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: PixelColors.coinGold, width: 1.5),
                     ),
-                    child: const Icon(Icons.savings, color: Color(0xFFF59E0B), size: 20),
+                    child: const Text('📦', style: TextStyle(fontSize: 18)),
                   ),
                   const SizedBox(width: 10),
                   Text(
                     goal.title,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
+                      color: PixelColors.textDark,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-              Text(
-                '$percentInt%',
-                style: const TextStyle(
-                  color: Color(0xFFF59E0B),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: PixelColors.badgePurple,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: PixelColors.deepPurple, width: 1),
+                ),
+                child: Text(
+                  '$percentInt%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    fontFamily: 'monospace',
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
 
           // Progress Bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: const Color(0xFF0F172A),
-              color: const Color(0xFFF59E0B),
-              minHeight: 10,
+          Container(
+            height: 10,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: PixelColors.deepPurple, width: 1.5),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: progress,
+                backgroundColor: Colors.transparent,
+                valueColor: const AlwaysStoppedAnimation<Color>(PixelColors.coinGold),
+              ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           // Amount Details
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Terkumpul: Rp ${goal.savedAmount}',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                'Terkumpul: Rp ${_formatNumber(goal.savedAmount)}',
+                style: const TextStyle(color: PixelColors.greenSuccess, fontSize: 11, fontWeight: FontWeight.bold),
               ),
               Text(
-                'Target: Rp ${goal.targetAmount}',
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
+                'Target: Rp ${_formatNumber(goal.targetAmount)}',
+                style: const TextStyle(color: PixelColors.textMuted, fontSize: 11),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
 
           // Setor Button
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFF59E0B),
-              foregroundColor: Colors.white,
+          InkWell(
+            onTap: () => _showDepositDialog(context, ref),
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              decoration: PixelDecorations.button(
+                color: PixelColors.coinGold,
+                radius: 10,
+              ),
+              alignment: Alignment.center,
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add, size: 16, color: PixelColors.deepPurple),
+                  SizedBox(width: 4),
+                  Text(
+                    'Simpan Setoran',
+                    style: TextStyle(
+                      color: PixelColors.textDark,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            onPressed: () => _showDepositDialog(context, ref),
-            icon: const Icon(Icons.add, size: 16),
-            label: const Text('Simpan Setoran', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -234,24 +378,44 @@ class _SavingsCard extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        title: Text('Setor Tabungan: ${goal.title}', style: const TextStyle(color: Colors.white, fontSize: 15)),
+        backgroundColor: PixelColors.cardParchment,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: PixelColors.deepPurple, width: 2),
+        ),
+        title: Text(
+          'Setor ke: ${goal.title}',
+          style: const TextStyle(color: PixelColors.textDark, fontSize: 15, fontWeight: FontWeight.bold),
+        ),
         content: TextField(
           controller: depositController,
           keyboardType: TextInputType.number,
-          style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(
+          style: const TextStyle(color: PixelColors.textDark, fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
             hintText: 'Jumlah Uang Setoran (Rp)',
-            hintStyle: TextStyle(color: Colors.white38),
+            hintStyle: const TextStyle(color: PixelColors.textMuted),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal', style: TextStyle(color: Colors.white54)),
+            child: const Text('Batal', style: TextStyle(color: PixelColors.textMuted, fontWeight: FontWeight.bold)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF59E0B)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: PixelColors.coinGold,
+              foregroundColor: PixelColors.textDark,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
+              ),
+            ),
             onPressed: () async {
               final amount = int.tryParse(depositController.text.replaceAll(RegExp(r'[^0-9]'), ''));
               if (amount != null && amount > 0) {
@@ -260,10 +424,17 @@ class _SavingsCard extends ConsumerWidget {
                 if (ctx.mounted) Navigator.pop(ctx);
               }
             },
-            child: const Text('Setor', style: TextStyle(color: Colors.white)),
+            child: const Text('Setor Sekarang', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     );
+  }
+
+  static String _formatNumber(int number) {
+    return number.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+        );
   }
 }

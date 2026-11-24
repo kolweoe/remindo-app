@@ -1,0 +1,303 @@
+<!DOCTYPE html><html lang="id"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peti Tabungan — Target | Remindo</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#6D3FA8',
+        'on-primary': '#FFFFFF',
+        'primary-container': '#8B5CF6',
+        'on-primary-container': '#0F0F0F',
+        'secondary': '#D9468F',
+        'on-secondary': '#161616',
+        'secondary-container': '#FCE7F3',
+        'on-secondary-container': '#831843',
+        'accent': '#F59E0B',
+        'on-accent': '#2D1B4E',
+        'accent-container': '#FEF3C7',
+        'on-accent-container': '#78350F',
+        'surface': '#F3E8FF',
+        'on-surface': '#2D1B4E',
+        'surface-container-low': '#FFF8EB',
+        'on-surface-container-low': '#2D1B4E',
+        'surface-container': '#F7ECFF',
+        'on-surface-container': '#2D1B4E',
+        'surface-container-high': '#E9D5FF',
+        'on-surface-container-high': '#2D1B4E',
+        'surface-nav': '#4A2E70',
+        'on-surface-nav': '#FFFFFF',
+        'outline': '#4A2E70',
+        'outline-variant': '#D8B4FE',
+        'success': '#2E8B57',
+        'on-success': '#0F0F0F',
+        'warning': '#D97706',
+        'on-warning': '#2A2A2A',
+        'error': '#DC2626',
+        'on-error': '#FFFFFF',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '12px',
+        'md': '14px',
+        'lg': '18px',
+        'xl': '24px',
+        'full': '9999px',
+      },
+      spacing: {
+        'unit-xs': '4px',
+        'unit-sm': '8px',
+        'unit-md': '12px',
+        'unit-lg': '16px',
+        'unit-xl': '24px',
+        'page-margin': '16px',
+        'nav-height': '72px',
+      },
+      fontFamily: {
+        'display': ['"Boogaloo"', 'sans-serif'],
+        'headline': ['"Boogaloo"', 'sans-serif'],
+        'title': ['"Capriola"', 'sans-serif'],
+        'body': ['"Capriola"', 'sans-serif'],
+        'label': ['"Capriola"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['44px', { lineHeight: '48px', letterSpacing: '0px', fontWeight: '400' }],
+        'display-lg-mobile': ['32px', { lineHeight: '36px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-lg': ['28px', { lineHeight: '34px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['13px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '400' }],
+        'mono-lg': ['20px', { lineHeight: '24px', letterSpacing: '-0.2px', fontWeight: '700' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '600' }],
+      },
+      transitionDuration: {
+        'button-press': '100ms',
+        'surface-enter': '220ms',
+      },
+      transitionDelay: {
+        'button-press': '0ms',
+        'surface-enter': '0ms',
+      },
+      transitionTimingFunction: {
+        'button-press': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&amp;family=Capriola&amp;family=Spline+Sans+Mono:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .pixel-shadow-sm {
+      box-shadow: 0 2px 0 #2D1B4E;
+    }
+    .pixel-shadow-md {
+      box-shadow: 0 4px 0 #2D1B4E;
+    }
+    .pixel-shadow-card {
+      box-shadow: 0 6px 0 rgba(74, 46, 112, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+  <div class="min-h-[884px] max-w-md mx-auto flex flex-col bg-surface border-x-2 border-outline relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Contextual Task Flow Header -->
+    <header class="bg-surface-nav text-on-surface-nav border-b-2 border-outline px-unit-md py-unit-sm z-20 flex items-center justify-between gap-unit-sm">
+      <a href="#wallet" aria-label="Kembali ke Dompetku" class="inline-flex items-center justify-center w-10 h-10 bg-primary text-on-primary border-2 border-outline rounded-md pixel-shadow-sm">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">arrow_back</span>
+      </a>
+
+      <h1 data-design-text-token="headline-lg" class="font-headline text-headline-lg text-center">Peti Tabungan</h1>
+
+      <div class="w-10"></div>
+    </header>
+
+    <!-- Main Savings Chest Content -->
+    <main class="flex-1 flex flex-col gap-unit-md p-unit-lg">
+
+      <!-- Active Savings Goal Card -->
+      <article data-component-id="card-action" data-component-type="card" data-component-variant="action" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+        <div class="flex items-center justify-between gap-unit-sm">
+          <div class="flex items-center gap-unit-sm min-w-0">
+            <div class="w-11 h-11 bg-accent-container border-2 border-outline rounded-lg flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">inventory_2</span>
+            </div>
+            <div class="flex flex-col gap-0 min-w-0">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm text-primary">Target Utama</span>
+              <h2 id="active-goal-title" data-design-text-token="title-md" class="font-title text-title-md">Laptop Baru</h2>
+            </div>
+          </div>
+          <span id="active-goal-pct" data-design-text-token="mono-sm" class="font-mono text-mono-sm bg-accent-container text-on-accent-container border border-outline rounded-full px-unit-sm py-0.5 tabular-nums">35%</span>
+        </div>
+
+        <div class="w-full h-4 bg-surface-container-high border-2 border-outline rounded-full overflow-hidden">
+          <div id="active-goal-bar" class="h-full bg-success rounded-full" style="width: 35%;"></div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span id="active-goal-progress" data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">70 / 200 Coin</span>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Setara Rp 700.000 / 2.000.000</span>
+        </div>
+
+        <!-- Setor Cepat -->
+        <div class="grid grid-cols-3 gap-unit-xs pt-unit-xs">
+          <button type="button" data-add="10" class="deposit-preset bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-xs text-center">
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+10 Coin</span>
+          </button>
+          <button type="button" data-add="25" class="deposit-preset bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-xs text-center">
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+25 Coin</span>
+          </button>
+          <button type="button" data-add="50" class="deposit-preset bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-xs text-center">
+            <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+50 Coin</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-unit-sm">
+          <input id="deposit-amount" type="number" min="1" value="25" aria-label="Jumlah setoran tabungan" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-xs font-mono text-mono-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary">
+          <button id="deposit-now-btn" data-component-id="button-primary" data-component-type="button" data-component-variant="primary" type="button" class="shrink-0 bg-primary text-on-primary border-2 border-outline rounded-lg px-unit-md py-unit-sm pixel-shadow-sm active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Tabung</span>
+          </button>
+        </div>
+      </article>
+
+      <!-- Feedback Banner -->
+      <div id="savings-feedback" class="hidden bg-accent-container text-on-accent-container border-2 border-outline rounded-md px-unit-md py-unit-sm text-center">
+        <span id="savings-feedback-text" data-design-text-token="label-lg" class="font-label text-label-lg"></span>
+      </div>
+
+      <!-- Target Tabungan Lainnya -->
+      <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+        <div class="flex items-center gap-unit-xs">
+          <span class="material-symbols-outlined text-primary text-[20px]" aria-hidden="true">savings</span>
+          <h2 data-design-text-token="title-md" class="font-title text-title-md">Daftar Target Tabungan</h2>
+        </div>
+
+        <div class="flex flex-col gap-unit-xs">
+          <div class="bg-surface-container border-2 border-outline rounded-lg p-unit-sm flex items-center justify-between gap-unit-sm">
+            <div class="flex flex-col gap-0">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Dana Darurat</span>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">120 / 150 Coin (80%)</span>
+            </div>
+            <span class="bg-success text-on-success border border-outline rounded-full px-unit-sm py-0.5">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Hampir Tercapai</span>
+            </span>
+          </div>
+
+          <div class="bg-surface-container border-2 border-outline rounded-lg p-unit-sm flex items-center justify-between gap-unit-sm">
+            <div class="flex flex-col gap-0">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Headset Kuliah</span>
+              <span data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">40 / 100 Coin (40%)</span>
+            </div>
+            <span class="bg-accent-container text-on-accent-container border border-outline rounded-full px-unit-sm py-0.5">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Aktif</span>
+            </span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Buat Target Tabungan Baru -->
+      <article data-component-id="card-elevated" data-component-type="card" data-component-variant="elevated" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-md pixel-shadow-card flex flex-col gap-unit-sm">
+        <div class="flex items-center gap-unit-xs">
+          <span class="material-symbols-outlined text-primary text-[20px]" aria-hidden="true">add_circle</span>
+          <h2 data-design-text-token="title-md" class="font-title text-title-md">Tambah Target Baru</h2>
+        </div>
+
+        <div class="grid grid-cols-2 gap-unit-sm">
+          <div class="flex flex-col gap-unit-xs">
+            <label for="new-goal-name" data-design-text-token="label-sm" class="font-label text-label-sm">Nama Target</label>
+            <input id="new-goal-name" type="text" placeholder="mis. Sepatu Baru" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-xs font-body text-body-md focus:outline-none focus:ring-2 focus:ring-primary">
+          </div>
+          <div class="flex flex-col gap-unit-xs">
+            <label for="new-goal-target" data-design-text-token="label-sm" class="font-label text-label-sm">Target (Coin)</label>
+            <input id="new-goal-target" type="number" min="10" value="100" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-xs font-mono text-mono-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary">
+          </div>
+        </div>
+
+        <button id="create-goal-btn" type="button" class="w-full flex items-center justify-center gap-unit-xs bg-secondary text-on-secondary border-2 border-outline rounded-lg py-unit-sm pixel-shadow-sm active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">save</span>
+          <span data-design-text-token="label-lg" class="font-label text-label-lg">Simpan Target Baru</span>
+        </button>
+      </article>
+
+    </main>
+
+  </div>
+
+  <script>
+    (function () {
+      var saved = 70;
+      var target = 200;
+      var bar = document.getElementById('active-goal-bar');
+      var pctEl = document.getElementById('active-goal-pct');
+      var progEl = document.getElementById('active-goal-progress');
+      var depositInput = document.getElementById('deposit-amount');
+      var depositBtn = document.getElementById('deposit-now-btn');
+      var presets = document.querySelectorAll('.deposit-preset');
+      var createGoalBtn = document.getElementById('create-goal-btn');
+      var newGoalName = document.getElementById('new-goal-name');
+      var feedback = document.getElementById('savings-feedback');
+      var feedbackText = document.getElementById('savings-feedback-text');
+
+      function showMsg(msg) {
+        if (!feedback || !feedbackText) return;
+        feedbackText.textContent = msg;
+        feedback.classList.remove('hidden');
+      }
+
+      function renderGoal() {
+        var pct = Math.min(100, Math.round((saved / target) * 100));
+        if (bar) bar.style.width = pct + '%';
+        if (pctEl) pctEl.textContent = pct + '%';
+        if (progEl) progEl.textContent = saved + ' / ' + target + ' Coin';
+      }
+
+      presets.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var val = btn.getAttribute('data-add');
+          if (depositInput && val) depositInput.value = val;
+        });
+      });
+
+      if (depositBtn) {
+        depositBtn.addEventListener('click', function () {
+          var amt = parseInt(depositInput ? depositInput.value : '0', 10) || 0;
+          if (amt <= 0) return;
+          saved = Math.min(target, saved + amt);
+          renderGoal();
+          showMsg('Berhasil menabung +' + amt + ' Coin ke Peti Tabungan!');
+        });
+      }
+
+      if (createGoalBtn) {
+        createGoalBtn.addEventListener('click', function () {
+          var name = (newGoalName && newGoalName.value.trim()) || 'Target Baru';
+          showMsg('Target tabungan "' + name + '" ditambahkan ke daftar!');
+        });
+      }
+    })();
+  </script>
+
+
+</body></html>

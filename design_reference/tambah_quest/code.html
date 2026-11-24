@@ -1,0 +1,433 @@
+<!DOCTYPE html><html lang="id"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Quest | Remindo</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">/** @type {import('tailwindcss').Config} */
+globalThis.tailwind = globalThis.tailwind || {};
+globalThis.tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#6D3FA8',
+        'on-primary': '#FFFFFF',
+        'primary-container': '#8B5CF6',
+        'on-primary-container': '#0F0F0F',
+        'secondary': '#D9468F',
+        'on-secondary': '#161616',
+        'secondary-container': '#FCE7F3',
+        'on-secondary-container': '#831843',
+        'accent': '#F59E0B',
+        'on-accent': '#2D1B4E',
+        'accent-container': '#FEF3C7',
+        'on-accent-container': '#78350F',
+        'surface': '#F3E8FF',
+        'on-surface': '#2D1B4E',
+        'surface-container-low': '#FFF8EB',
+        'on-surface-container-low': '#2D1B4E',
+        'surface-container': '#F7ECFF',
+        'on-surface-container': '#2D1B4E',
+        'surface-container-high': '#E9D5FF',
+        'on-surface-container-high': '#2D1B4E',
+        'surface-nav': '#4A2E70',
+        'on-surface-nav': '#FFFFFF',
+        'outline': '#4A2E70',
+        'outline-variant': '#D8B4FE',
+        'success': '#2E8B57',
+        'on-success': '#0F0F0F',
+        'warning': '#D97706',
+        'on-warning': '#2A2A2A',
+        'error': '#DC2626',
+        'on-error': '#FFFFFF',
+      },
+      borderRadius: {
+        'sm': '6px',
+        'DEFAULT': '12px',
+        'md': '14px',
+        'lg': '18px',
+        'xl': '24px',
+        'full': '9999px',
+      },
+      spacing: {
+        'unit-xs': '4px',
+        'unit-sm': '8px',
+        'unit-md': '12px',
+        'unit-lg': '16px',
+        'unit-xl': '24px',
+        'page-margin': '16px',
+        'nav-height': '72px',
+      },
+      fontFamily: {
+        'display': ['"Boogaloo"', 'sans-serif'],
+        'headline': ['"Boogaloo"', 'sans-serif'],
+        'title': ['"Capriola"', 'sans-serif'],
+        'body': ['"Capriola"', 'sans-serif'],
+        'label': ['"Capriola"', 'sans-serif'],
+        'mono': ['"Spline Sans Mono"', 'monospace'],
+      },
+      fontSize: {
+        'display-lg': ['44px', { lineHeight: '48px', letterSpacing: '0px', fontWeight: '400' }],
+        'display-lg-mobile': ['32px', { lineHeight: '36px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-lg': ['28px', { lineHeight: '34px', letterSpacing: '0px', fontWeight: '400' }],
+        'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '0px', fontWeight: '400' }],
+        'title-md': ['16px', { lineHeight: '22px', letterSpacing: '0px', fontWeight: '400' }],
+        'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0px', fontWeight: '400' }],
+        'label-lg': ['13px', { lineHeight: '18px', letterSpacing: '0.1px', fontWeight: '400' }],
+        'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.2px', fontWeight: '400' }],
+        'mono-lg': ['20px', { lineHeight: '24px', letterSpacing: '-0.2px', fontWeight: '700' }],
+        'mono-sm': ['12px', { lineHeight: '16px', letterSpacing: '0px', fontWeight: '600' }],
+      },
+      transitionDuration: {
+        'button-press': '100ms',
+        'surface-enter': '220ms',
+      },
+      transitionDelay: {
+        'button-press': '0ms',
+        'surface-enter': '0ms',
+      },
+      transitionTimingFunction: {
+        'button-press': 'ease-out',
+        'surface-enter': 'cubic-bezier(0.2, 0, 0, 1)',
+      },
+    },
+  },
+};
+if (typeof module !== 'undefined') module.exports = globalThis.tailwind.config;
+</script>
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&amp;family=Capriola&amp;family=Spline+Sans+Mono:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet">
+  <style>
+    .material-symbols-outlined {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1 !important;
+      box-sizing: content-box;
+      overflow: hidden;
+      white-space: nowrap;
+      direction: ltr;
+      vertical-align: middle;
+    }
+    .pixel-shadow-sm {
+      box-shadow: 0 2px 0 #2D1B4E;
+    }
+    .pixel-shadow-md {
+      box-shadow: 0 4px 0 #2D1B4E;
+    }
+    .pixel-shadow-card {
+      box-shadow: 0 6px 0 rgba(74, 46, 112, 0.28);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+  <div class="min-h-[884px] max-w-md mx-auto flex flex-col justify-between bg-surface border-x-2 border-outline p-unit-lg relative" data-stitch-vh="min-h-[884px]===min-h-screen">
+
+    <!-- Top Modal / Task Flow Header -->
+    <header class="flex items-center justify-between gap-unit-sm pb-unit-md">
+      <div class="w-10"></div>
+      <div class="bg-primary text-on-primary border-2 border-outline rounded-lg px-unit-xl py-unit-xs pixel-shadow-md flex items-center gap-unit-sm">
+        <span class="material-symbols-outlined text-accent text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">auto_awesome</span>
+        <h1 data-design-text-token="headline-lg" class="font-headline text-headline-lg text-center">Quest Baru</h1>
+      </div>
+      <a href="#quests" data-component-id="button-icon" data-component-type="button" data-component-variant="icon" aria-label="Tutup form quest" class="inline-flex items-center justify-center w-10 h-10 bg-secondary text-on-secondary border-2 border-outline rounded-md pixel-shadow-sm active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+        <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
+      </a>
+    </header>
+
+    <!-- Main Form Card -->
+    <main class="flex-1 flex flex-col gap-unit-md">
+      <form id="add-quest-form" class="bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-xl p-unit-lg pixel-shadow-card flex flex-col gap-unit-md">
+
+        <!-- Quest Name -->
+        <div class="flex flex-col gap-unit-xs">
+          <label for="quest-name" class="inline-flex items-center gap-unit-xs">
+            <span class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">swords</span>
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Nama Quest</span>
+          </label>
+          <input id="quest-name" type="text" value="Kumpulkan Tugas PBO" placeholder="mis. Minum 2L air" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-md py-unit-sm font-body text-body-md focus:outline-none focus:ring-2 focus:ring-primary">
+        </div>
+
+        <!-- Category -->
+        <div class="flex flex-col gap-unit-xs">
+          <label for="quest-category" class="inline-flex items-center gap-unit-xs">
+            <span class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">menu_book</span>
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Kategori</span>
+          </label>
+          <select id="quest-category" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-md py-unit-sm font-body text-body-md focus:outline-none focus:ring-2 focus:ring-primary">
+            <option value="Kuliah" selected>Kuliah</option>
+            <option value="Kesehatan">Kesehatan</option>
+            <option value="Produktivitas">Produktivitas</option>
+            <option value="Keuangan">Keuangan</option>
+            <option value="Pribadi">Pribadi</option>
+          </select>
+        </div>
+
+        <!-- Quest Mode Selector: Pengingat (Centang Langsung) vs Ber-Timer (Wajib Selesai Timer) -->
+        <div class="flex flex-col gap-unit-xs">
+          <span class="inline-flex items-center gap-unit-xs">
+            <span class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">timer</span>
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Mode Quest</span>
+          </span>
+          <div class="grid grid-cols-2 gap-unit-sm" role="radiogroup" aria-label="Pilih mode quest">
+            <button type="button" data-mode="Pengingat" class="mode-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md p-unit-sm flex flex-col items-center gap-0 pixel-shadow-sm">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Pengingat</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Langsung centang</span>
+            </button>
+            <button type="button" data-mode="Ber-Timer" class="mode-btn bg-primary text-on-primary border-2 border-outline rounded-md p-unit-sm flex flex-col items-center gap-0 pixel-shadow-sm">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Ber-Timer</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Wajib selesai timer</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Timer Duration Section (Visible when Ber-Timer is active) -->
+        <div id="timer-duration-section" class="bg-surface-container border-2 border-outline rounded-lg p-unit-md flex flex-col gap-unit-xs">
+          <div class="flex items-center justify-between">
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Durasi Timer</span>
+            <span id="timer-duration-label" data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">25 Menit</span>
+          </div>
+          <div class="grid grid-cols-4 gap-unit-xs">
+            <button type="button" data-mins="15" class="dur-btn bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-md py-unit-xs text-center">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">15m</span>
+            </button>
+            <button type="button" data-mins="25" class="dur-btn bg-accent-container text-on-accent-container border-2 border-outline rounded-md py-unit-xs text-center">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">25m</span>
+            </button>
+            <button type="button" data-mins="45" class="dur-btn bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-md py-unit-xs text-center">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">45m</span>
+            </button>
+            <button type="button" data-mins="60" class="dur-btn bg-surface-container-low text-on-surface-container-low border-2 border-outline rounded-md py-unit-xs text-center">
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">60m</span>
+            </button>
+          </div>
+          <span data-design-text-token="label-sm" class="font-label text-label-sm">Centang terbuka otomatis setelah timer selesai.</span>
+        </div>
+
+        <!-- Difficulty Selector -->
+        <div class="flex flex-col gap-unit-xs">
+          <span class="inline-flex items-center gap-unit-xs">
+            <span class="material-symbols-outlined text-error text-[18px]" aria-hidden="true">local_fire_department</span>
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Kesulitan</span>
+          </span>
+          <div class="grid grid-cols-3 gap-unit-sm" role="radiogroup" aria-label="Pilih tingkat kesulitan">
+            <button type="button" data-diff="Easy" data-xp="30" data-coin="15" class="diff-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Easy</span>
+            </button>
+            <button type="button" data-diff="Normal" data-xp="60" data-coin="30" class="diff-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Normal</span>
+            </button>
+            <button type="button" data-diff="Hard" data-xp="120" data-coin="60" class="diff-btn bg-error text-on-error border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Hard</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Reward Preview -->
+        <div class="bg-accent-container text-on-accent-container border-2 border-outline rounded-md px-unit-md py-unit-sm flex items-center justify-between gap-unit-sm">
+          <span class="inline-flex items-center gap-unit-xs">
+            <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">star</span>
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Pratinjau Reward</span>
+          </span>
+          <div class="flex items-center gap-unit-md">
+            <span id="reward-xp" data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">+120 XP</span>
+            <span class="inline-flex items-center gap-unit-xs">
+              <span class="material-symbols-outlined text-accent text-[18px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">monetization_on</span>
+              <span id="reward-coin" data-design-text-token="mono-sm" class="font-mono text-mono-sm tabular-nums">60</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Date & Time -->
+        <div class="flex flex-col gap-unit-xs">
+          <span class="inline-flex items-center gap-unit-xs">
+            <span class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">calendar_month</span>
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Tanggal &amp; Waktu</span>
+          </span>
+          <div class="grid grid-cols-2 gap-unit-sm">
+            <input id="quest-date" type="date" value="2026-11-19" aria-label="Tanggal quest" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-sm font-mono text-mono-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary">
+            <input id="quest-time" type="time" value="19:00" aria-label="Waktu alarm quest" class="w-full bg-surface-container text-on-surface-container border-2 border-outline rounded-md px-unit-sm py-unit-sm font-mono text-mono-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary">
+          </div>
+        </div>
+
+        <!-- Repeat Selector -->
+        <div class="flex flex-col gap-unit-xs">
+          <span class="inline-flex items-center gap-unit-xs">
+            <span class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">repeat</span>
+            <span data-design-text-token="label-lg" class="font-label text-label-lg">Pengulangan</span>
+          </span>
+          <div class="grid grid-cols-3 gap-unit-sm" role="radiogroup" aria-label="Pilih pengulangan quest">
+            <button type="button" class="repeat-btn bg-success text-on-success border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Sekali</span>
+            </button>
+            <button type="button" class="repeat-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Harian</span>
+            </button>
+            <button type="button" class="repeat-btn bg-surface-container text-on-surface-container border-2 border-outline rounded-md py-unit-sm text-center pixel-shadow-sm">
+              <span data-design-text-token="label-lg" class="font-label text-label-lg">Mingguan</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Alarm & Popup Reminder Toggle -->
+        <div class="bg-surface-container border-2 border-outline rounded-lg p-unit-md flex flex-col gap-unit-sm">
+          <div class="flex items-center justify-between gap-unit-sm">
+            <div class="flex items-center gap-unit-sm">
+              <span class="material-symbols-outlined text-warning text-[22px]" style="font-variation-settings: &#39;FILL&#39; 1;" aria-hidden="true">notifications_active</span>
+              <div class="flex flex-col gap-0">
+                <span data-design-text-token="label-lg" class="font-label text-label-lg">Alarm &amp; Popup Layar Penuh</span>
+                <span data-design-text-token="label-sm" class="font-label text-label-sm">Muncul meski aplikasi ditutup</span>
+              </div>
+            </div>
+
+            <button id="alarm-toggle" type="button" role="switch" aria-checked="true" aria-label="Aktifkan alarm dan popup pengingat" class="inline-flex items-center justify-end w-16 h-8 bg-success text-on-success border-2 border-outline rounded-full px-unit-xs pixel-shadow-sm transition-colors duration-button-press">
+              <span id="alarm-toggle-label" data-design-text-token="label-sm" class="font-label text-label-sm mr-auto pl-unit-xs">ON</span>
+              <span class="w-5 h-5 bg-surface-container-low border-2 border-outline rounded-full"></span>
+            </button>
+          </div>
+
+          <!-- Ringtone Option (Visible when Alarm ON) -->
+          <div id="alarm-sound-row" class="flex items-center justify-between border-t border-outline-variant pt-unit-sm">
+            <span class="inline-flex items-center gap-unit-xs">
+              <span class="material-symbols-outlined text-primary text-[18px]" aria-hidden="true">music_note</span>
+              <span data-design-text-token="label-sm" class="font-label text-label-sm">Nada Dering</span>
+            </span>
+            <span data-design-text-token="label-sm" class="font-label text-label-sm text-primary">Pixel Chime</span>
+          </div>
+        </div>
+
+        <!-- Save Feedback (Hidden until submitted) -->
+        <div id="save-feedback" class="hidden bg-accent-container text-on-accent-container border-2 border-outline rounded-md px-unit-md py-unit-sm text-center">
+          <span id="save-feedback-text" data-design-text-token="label-lg" class="font-label text-label-lg"></span>
+        </div>
+
+        <!-- Primary Submit CTA -->
+        <button id="save-quest-btn" data-component-id="button-primary" data-component-type="button" data-component-variant="primary" type="submit" class="w-full flex items-center justify-center gap-unit-sm bg-primary text-on-primary border-2 border-outline rounded-lg py-unit-md pixel-shadow-md active:translate-y-[2px] transition-transform duration-button-press ease-button-press">
+          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">save</span>
+          <span data-design-text-token="title-md" class="font-title text-title-md">Simpan Quest</span>
+        </button>
+
+      </form>
+    </main>
+
+  </div>
+
+  <script>
+    (function () {
+      var modeBtns = document.querySelectorAll('.mode-btn');
+      var timerSection = document.getElementById('timer-duration-section');
+      var durBtns = document.querySelectorAll('.dur-btn');
+      var durLabel = document.getElementById('timer-duration-label');
+      var selectedMode = 'Ber-Timer';
+      var selectedMins = '25';
+
+      modeBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          selectedMode = btn.getAttribute('data-mode');
+          modeBtns.forEach(function (b) {
+            b.classList.remove('bg-primary', 'text-on-primary');
+            b.classList.add('bg-surface-container', 'text-on-surface-container');
+          });
+          btn.classList.remove('bg-surface-container', 'text-on-surface-container');
+          btn.classList.add('bg-primary', 'text-on-primary');
+          if (timerSection) {
+            if (selectedMode === 'Ber-Timer') {
+              timerSection.classList.remove('hidden');
+            } else {
+              timerSection.classList.add('hidden');
+            }
+          }
+        });
+      });
+
+      durBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          selectedMins = btn.getAttribute('data-mins');
+          durBtns.forEach(function (b) {
+            b.classList.remove('bg-accent-container', 'text-on-accent-container');
+            b.classList.add('bg-surface-container-low', 'text-on-surface-container-low');
+          });
+          btn.classList.remove('bg-surface-container-low', 'text-on-surface-container-low');
+          btn.classList.add('bg-accent-container', 'text-on-accent-container');
+          if (durLabel) durLabel.textContent = selectedMins + ' Menit';
+        });
+      });
+
+      var diffBtns = document.querySelectorAll('.diff-btn');
+      var rewardXp = document.getElementById('reward-xp');
+      var rewardCoin = document.getElementById('reward-coin');
+      var repeatBtns = document.querySelectorAll('.repeat-btn');
+      var alarmToggle = document.getElementById('alarm-toggle');
+      var alarmToggleLabel = document.getElementById('alarm-toggle-label');
+      var alarmSoundRow = document.getElementById('alarm-sound-row');
+      var form = document.getElementById('add-quest-form');
+      var saveFeedback = document.getElementById('save-feedback');
+      var saveFeedbackText = document.getElementById('save-feedback-text');
+
+      diffBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          diffBtns.forEach(function (b) {
+            b.classList.remove('bg-success', 'text-on-success', 'bg-warning', 'text-on-warning', 'bg-error', 'text-on-error');
+            b.classList.add('bg-surface-container', 'text-on-surface-container');
+          });
+          var diff = btn.getAttribute('data-diff');
+          btn.classList.remove('bg-surface-container', 'text-on-surface-container');
+          if (diff === 'Easy') {
+            btn.classList.add('bg-success', 'text-on-success');
+          } else if (diff === 'Normal') {
+            btn.classList.add('bg-warning', 'text-on-warning');
+          } else {
+            btn.classList.add('bg-error', 'text-on-error');
+          }
+          if (rewardXp) rewardXp.textContent = '+' + btn.getAttribute('data-xp') + ' XP';
+          if (rewardCoin) rewardCoin.textContent = btn.getAttribute('data-coin');
+        });
+      });
+
+      repeatBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          repeatBtns.forEach(function (b) {
+            b.classList.remove('bg-success', 'text-on-success');
+            b.classList.add('bg-surface-container', 'text-on-surface-container');
+          });
+          btn.classList.remove('bg-surface-container', 'text-on-surface-container');
+          btn.classList.add('bg-success', 'text-on-success');
+        });
+      });
+
+      if (alarmToggle) {
+        alarmToggle.addEventListener('click', function () {
+          var isOn = alarmToggle.getAttribute('aria-checked') === 'true';
+          var next = !isOn;
+          alarmToggle.setAttribute('aria-checked', String(next));
+          if (next) {
+            alarmToggle.classList.remove('bg-surface-container-high', 'text-on-surface-container-high', 'justify-start');
+            alarmToggle.classList.add('bg-success', 'text-on-success', 'justify-end');
+            if (alarmToggleLabel) alarmToggleLabel.textContent = 'ON';
+            if (alarmSoundRow) alarmSoundRow.classList.remove('hidden');
+          } else {
+            alarmToggle.classList.remove('bg-success', 'text-on-success', 'justify-end');
+            alarmToggle.classList.add('bg-surface-container-high', 'text-on-surface-container-high', 'justify-start');
+            if (alarmToggleLabel) alarmToggleLabel.textContent = 'OFF';
+            if (alarmSoundRow) alarmSoundRow.classList.add('hidden');
+          }
+        });
+      }
+
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var nameInput = document.getElementById('quest-name');
+          var title = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Quest Baru';
+          var isAlarmOn = alarmToggle && alarmToggle.getAttribute('aria-checked') === 'true';
+          if (saveFeedback && saveFeedbackText) {
+            saveFeedbackText.textContent = 'Quest "' + title + '" tersimpan' + (isAlarmOn ? ' dengan alarm aktif!' : '!');
+            saveFeedback.classList.remove('hidden');
+          }
+        });
+      }
+    })();
+  </script>
+
+
+</body></html>

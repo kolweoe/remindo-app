@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/providers/app_providers.dart';
+import '../core/router/app_router.dart';
+import '../core/theme/pixel_theme.dart';
 import '../core/utils/responsive.dart';
 import '../models/quest.dart';
+import '../widgets/pixel_scaffold.dart';
 
 class QuestsScreen extends ConsumerStatefulWidget {
   const QuestsScreen({super.key});
@@ -17,110 +20,259 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
   @override
   Widget build(BuildContext context) {
     final questsAsync = ref.watch(questsProvider);
+    final heroAsync = ref.watch(heroProfileProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-        title: const Text(
-          'Papan Quest',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+    return PixelScaffold(
+      currentTabIndex: 1,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: PixelColors.coinGold,
+        foregroundColor: PixelColors.deepPurple,
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: PixelColors.deepPurple, width: 2),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history, color: Colors.white70),
-            onPressed: () => _showHistoryModal(context),
-          ),
-        ],
+        onPressed: () => _showAddQuestDialog(context),
+        child: const Icon(Icons.add, size: 28),
       ),
-      body: ResponsiveWrapper(
-        child: Column(
-          children: [
-            // Category Filter Pills
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              color: const Color(0xFF1E293B),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+      body: Column(
+        children: [
+          // ==========================================
+          // 1. RIBBON BANNER HEADER ("PAPAN MISI HARIAN")
+          // ==========================================
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              Responsive.px(context, 14),
+              12,
+              Responsive.px(context, 14),
+              8,
+            ),
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: PixelColors.badgePurple,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: PixelColors.deepPurple, width: 2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x334A2E70),
+                    offset: Offset(0, 3),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('⚔️', style: TextStyle(fontSize: 16)),
+                  SizedBox(width: 8),
+                  Text(
+                    'PAPAN MISI HARIAN',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Text('⚔️', style: TextStyle(fontSize: 16)),
+                ],
+              ),
+            ),
+          ),
+
+          // ==========================================
+          // 2. CATEGORY FILTER TABS
+          // ==========================================
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: Responsive.px(context, 14), vertical: 4),
+            child: Row(
+              children: [
+                _filterChip('Semua', 'all'),
+                const SizedBox(width: 8),
+                _filterChip('Harian', 'daily'),
+                const SizedBox(width: 8),
+                _filterChip('Mingguan', 'weekly'),
+                const SizedBox(width: 8),
+                _filterChip('Epik', 'epic'),
+                const SizedBox(width: 8),
+                _filterChip('Fokus ⏱', 'timed'),
+              ],
+            ),
+          ),
+
+          // ==========================================
+          // 3. STREAK BANNER
+          // ==========================================
+          heroAsync.maybeWhen(
+            data: (hero) => Padding(
+              padding: EdgeInsets.fromLTRB(
+                Responsive.px(context, 14),
+                6,
+                Responsive.px(context, 14),
+                6,
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: PixelColors.cardParchmentGold,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: PixelColors.deepPurple, width: 1.5),
+                ),
                 child: Row(
                   children: [
-                    _filterChip('Semua', 'all'),
+                    const Text('🔥', style: TextStyle(fontSize: 16)),
                     const SizedBox(width: 8),
-                    _filterChip('Harian', 'daily'),
-                    const SizedBox(width: 8),
-                    _filterChip('Mingguan', 'weekly'),
-                    const SizedBox(width: 8),
-                    _filterChip('Epik', 'epic'),
-                    const SizedBox(width: 8),
-                    _filterChip('Bertimer', 'timed'),
+                    Expanded(
+                      child: Text(
+                        'Streak: ${hero.streakDays} Hari Berturut-turut! (+20% XP)',
+                        style: const TextStyle(
+                          color: PixelColors.textDark,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
+            orElse: () => const SizedBox.shrink(),
+          ),
 
-            // Quests List
-            Expanded(
-              child: questsAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator(color: Color(0xFF8B5CF6))),
-                error: (err, _) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.red))),
-                data: (quests) {
-                  final filtered = quests.where((q) {
-                    if (_selectedCategory == 'all') return true;
-                    if (_selectedCategory == 'timed') return q.isTimed;
-                    return q.category == _selectedCategory;
-                  }).toList();
-
-                  if (filtered.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'Belum ada misi pada kategori ini.\nTekan + untuk menambahkan!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white54, fontSize: 13),
-                      ),
-                    );
-                  }
-
-                  return ListView.separated(
-                    padding: EdgeInsets.all(Responsive.px(context, 16)),
-                    itemCount: filtered.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) {
-                      final quest = filtered[index];
-                      return _QuestCard(quest: quest);
-                    },
-                  );
-                },
+          // ==========================================
+          // 4. QUESTS LIST
+          // ==========================================
+          Expanded(
+            child: questsAsync.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: PixelColors.badgePurple),
               ),
+              error: (err, _) => Center(
+                child: Text('Error: $err', style: const TextStyle(color: PixelColors.redExpense)),
+              ),
+              data: (quests) {
+                final filtered = quests.where((q) {
+                  if (_selectedCategory == 'all') return true;
+                  if (_selectedCategory == 'timed') return q.isTimed;
+                  return q.category == _selectedCategory;
+                }).toList();
+
+                if (filtered.isEmpty) {
+                  return Center(
+                    child: Container(
+                      margin: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(20),
+                      decoration: PixelDecorations.card(
+                        color: PixelColors.cardParchment,
+                        radius: 16,
+                      ),
+                      child: const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('📜', style: TextStyle(fontSize: 32)),
+                          SizedBox(height: 10),
+                          Text(
+                            'Belum ada misi pada kategori ini.',
+                            style: TextStyle(
+                              color: PixelColors.textDark,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Tekan tombol (+) kuning di bawah untuk menambah misi baru!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: PixelColors.textMuted,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  padding: EdgeInsets.fromLTRB(
+                    Responsive.px(context, 14),
+                    6,
+                    Responsive.px(context, 14),
+                    80, // Space for FAB
+                  ),
+                  itemCount: filtered.length + 1, // +1 for History link at bottom
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    if (index == filtered.length) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: InkWell(
+                          onTap: () => _showHistoryModal(context),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: PixelDecorations.button(
+                              color: PixelColors.cardParchment,
+                              radius: 12,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.history_edu_rounded, size: 16, color: PixelColors.badgePurple),
+                                SizedBox(width: 6),
+                                Text(
+                                  'Lihat Riwayat & Statistik Quest',
+                                  style: TextStyle(
+                                    color: PixelColors.textDark,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    final quest = filtered[index];
+                    return _PixelQuestCard(quest: quest);
+                  },
+                );
+              },
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF8B5CF6),
-        foregroundColor: Colors.white,
-        onPressed: () => _showAddQuestDialog(context),
-        child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }
 
   Widget _filterChip(String label, String categoryKey) {
     final isSelected = _selectedCategory == categoryKey;
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (val) {
-        if (val) {
-          setState(() => _selectedCategory = categoryKey);
-        }
-      },
-      selectedColor: const Color(0xFF8B5CF6),
-      backgroundColor: const Color(0xFF334155),
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.white70,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        fontSize: 12,
+
+    return InkWell(
+      onTap: () => setState(() => _selectedCategory = categoryKey),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? PixelColors.badgePurple : PixelColors.cardParchment,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: PixelColors.deepPurple, width: 1.5),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : PixelColors.textDark,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            fontSize: 12,
+          ),
+        ),
       ),
     );
   }
@@ -137,36 +289,62 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E293B),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Padding(
+        builder: (ctx, setModalState) => Container(
           padding: EdgeInsets.only(
             left: 20,
             right: 20,
             top: 20,
             bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
           ),
+          decoration: BoxDecoration(
+            color: PixelColors.cardParchment,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(color: PixelColors.deepPurple, width: 2),
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Tambah Misi Baru',
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '⚔️ Tambah Misi Baru',
+                    style: TextStyle(
+                      color: PixelColors.textDark,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: PixelColors.deepPurple),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
               TextField(
                 controller: titleController,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: PixelColors.textDark, fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
-                  hintText: 'Nama Misi (contoh: Belajar Matematika)',
-                  hintStyle: const TextStyle(color: Colors.white38),
+                  hintText: 'Nama Misi (contoh: Belajar Kalkulus)',
+                  hintStyle: const TextStyle(color: PixelColors.textMuted),
                   filled: true,
-                  fillColor: const Color(0xFF0F172A),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: PixelColors.badgePurple, width: 2),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -175,9 +353,18 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: category,
-                      dropdownColor: const Color(0xFF0F172A),
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                      decoration: const InputDecoration(labelText: 'Kategori', labelStyle: TextStyle(color: Colors.white60)),
+                      dropdownColor: PixelColors.cardParchment,
+                      style: const TextStyle(color: PixelColors.textDark, fontSize: 13, fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
+                        labelText: 'Kategori',
+                        labelStyle: const TextStyle(color: PixelColors.textMuted),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
+                        ),
+                      ),
                       items: const [
                         DropdownMenuItem(value: 'daily', child: Text('Harian')),
                         DropdownMenuItem(value: 'weekly', child: Text('Mingguan')),
@@ -186,13 +373,22 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
                       onChanged: (val) => setModalState(() => category = val ?? 'daily'),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: difficulty,
-                      dropdownColor: const Color(0xFF0F172A),
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                      decoration: const InputDecoration(labelText: 'Tingkat', labelStyle: TextStyle(color: Colors.white60)),
+                      dropdownColor: PixelColors.cardParchment,
+                      style: const TextStyle(color: PixelColors.textDark, fontSize: 13, fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
+                        labelText: 'Tingkat',
+                        labelStyle: const TextStyle(color: PixelColors.textMuted),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
+                        ),
+                      ),
                       items: const [
                         DropdownMenuItem(value: 'easy', child: Text('Mudah')),
                         DropdownMenuItem(value: 'normal', child: Text('Normal')),
@@ -217,20 +413,38 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                title: const Text('Quest Bertimer (Mode Fokus)', style: TextStyle(color: Colors.white, fontSize: 13)),
-                value: isTimed,
-                activeColor: const Color(0xFF8B5CF6),
-                onChanged: (v) => setModalState(() => isTimed = v),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: PixelColors.deepPurple, width: 1.5),
+                ),
+                child: SwitchListTile(
+                  title: const Text(
+                    'Quest Bertimer (Mode Fokus)',
+                    style: TextStyle(color: PixelColors.textDark, fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: const Text(
+                    'Gunakan timer pomodoro & countdown',
+                    style: TextStyle(color: PixelColors.textMuted, fontSize: 11),
+                  ),
+                  value: isTimed,
+                  activeColor: PixelColors.badgePurple,
+                  onChanged: (v) => setModalState(() => isTimed = v),
+                ),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8B5CF6),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  backgroundColor: PixelColors.coinGold,
+                  foregroundColor: PixelColors.textDark,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: const BorderSide(color: PixelColors.deepPurple, width: 2),
+                  ),
+                  elevation: 2,
                 ),
                 onPressed: () {
                   if (titleController.text.trim().isEmpty) return;
@@ -247,7 +461,7 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
                   ref.read(questsProvider.notifier).addQuest(newQuest);
                   Navigator.pop(ctx);
                 },
-                child: const Text('Simpan Misi', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: const Text('Simpan Misi Baru ⚔️', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               ),
             ],
           ),
@@ -263,38 +477,87 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1E293B),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Padding(
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
         padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: PixelColors.cardParchment,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: PixelColors.deepPurple, width: 2),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Riwayat Misi Selesai',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '📜 Riwayat Misi Selesai',
+                  style: TextStyle(
+                    color: PixelColors.textDark,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: PixelColors.deepPurple),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Expanded(
               child: history.isEmpty
-                  ? const Center(child: Text('Belum ada riwayat.', style: TextStyle(color: Colors.white54)))
-                  : ListView.builder(
+                  ? const Center(
+                      child: Text(
+                        'Belum ada riwayat misi yang selesai.',
+                        style: TextStyle(color: PixelColors.textMuted),
+                      ),
+                    )
+                  : ListView.separated(
                       itemCount: history.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
                       itemBuilder: (context, i) {
                         final h = history[i];
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.check_circle, color: Color(0xFF10B981)),
-                          title: Text(h.title, style: const TextStyle(color: Colors.white, fontSize: 13)),
-                          subtitle: Text(
-                            '+${h.xpEarned} XP  |  +${h.coinEarned} Koin',
-                            style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 11),
+                        return Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: PixelColors.deepPurple, width: 1.5),
                           ),
-                          trailing: Text(
-                            h.completedAt.split('T').first,
-                            style: const TextStyle(color: Colors.white38, fontSize: 11),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.check_circle_rounded, color: PixelColors.greenSuccess, size: 20),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      h.title,
+                                      style: const TextStyle(
+                                        color: PixelColors.textDark,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    Text(
+                                      '+${h.xpEarned} XP  |  +${h.coinEarned} 🪙',
+                                      style: const TextStyle(
+                                        color: PixelColors.badgePurple,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                h.completedAt.split('T').first,
+                                style: const TextStyle(color: PixelColors.textMuted, fontSize: 10),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -307,49 +570,48 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
   }
 }
 
-class _QuestCard extends ConsumerWidget {
+class _PixelQuestCard extends ConsumerWidget {
   final Quest quest;
 
-  const _QuestCard({required this.quest});
+  const _PixelQuestCard({required this.quest});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDone = quest.isCompleted;
+
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: quest.isCompleted ? const Color(0xFF10B981).withOpacity(0.5) : const Color(0xFF334155),
-        ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: PixelDecorations.card(
+        color: isDone ? PixelColors.cardParchmentGold : PixelColors.cardParchment,
+        radius: 12,
       ),
       child: Row(
         children: [
-          // Checkbox complete
+          // Pixel Checkbox
           GestureDetector(
-            onTap: quest.isCompleted
+            onTap: isDone
                 ? null
                 : () {
                     ref.read(questsProvider.notifier).completeQuest(quest.id!);
                     ref.read(heroProfileProvider.notifier).loadProfile();
                   },
             child: Container(
-              width: 28,
-              height: 28,
+              width: 26,
+              height: 26,
               decoration: BoxDecoration(
-                color: quest.isCompleted ? const Color(0xFF10B981) : Colors.transparent,
+                color: isDone ? PixelColors.greenSuccess : Colors.white,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: quest.isCompleted ? const Color(0xFF10B981) : const Color(0xFF8B5CF6),
+                  color: PixelColors.deepPurple,
                   width: 2,
                 ),
               ),
-              child: quest.isCompleted
+              child: isDone
                   ? const Icon(Icons.check, color: Colors.white, size: 18)
                   : null,
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
 
           // Title & Rewards
           Expanded(
@@ -359,49 +621,70 @@ class _QuestCard extends ConsumerWidget {
                 Text(
                   quest.title,
                   style: TextStyle(
-                    color: quest.isCompleted ? Colors.white38 : Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    decoration: quest.isCompleted ? TextDecoration.lineThrough : null,
+                    color: isDone ? PixelColors.textMuted : PixelColors.textDark,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    decoration: isDone ? TextDecoration.lineThrough : null,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Row(
                   children: [
+                    // XP Reward Chip
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF8B5CF6).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4),
+                        color: PixelColors.badgePurple,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: PixelColors.deepPurple, width: 1),
                       ),
                       child: Text(
                         '+${quest.xpReward} XP',
-                        style: const TextStyle(color: Color(0xFFA78BFA), fontSize: 10, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 5),
+
+                    // Coin Reward Chip
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF59E0B).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(4),
+                        color: PixelColors.coinGold,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: PixelColors.deepPurple, width: 1),
                       ),
                       child: Text(
-                        '+${quest.coinReward} Koin',
-                        style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 10, fontWeight: FontWeight.bold),
+                        '+${quest.coinReward} 🪙',
+                        style: const TextStyle(
+                          color: PixelColors.textDark,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ),
+
                     if (quest.isTimed) ...[
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 5),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF3B82F6).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(4),
+                          color: PixelColors.blueFocus,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: PixelColors.deepPurple, width: 1),
                         ),
                         child: Text(
                           '${quest.durationMinutes}m ⏱',
-                          style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ],
@@ -411,11 +694,11 @@ class _QuestCard extends ConsumerWidget {
             ),
           ),
 
-          // Action if timed
-          if (quest.isTimed && !quest.isCompleted)
+          // Timed action button
+          if (quest.isTimed && !isDone)
             IconButton(
-              icon: const Icon(Icons.play_circle_fill, color: Color(0xFF3B82F6), size: 30),
-              onPressed: () => Navigator.pushNamed(context, '#timed-quest'),
+              icon: const Icon(Icons.play_circle_fill_rounded, color: PixelColors.blueFocus, size: 28),
+              onPressed: () => Navigator.pushNamed(context, AppRouter.timedQuest),
             ),
         ],
       ),
