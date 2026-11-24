@@ -1,263 +1,704 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/services/focus_timer_service.dart';
-import '../core/utils/responsive.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:audioplayers/audioplayers.dart';
+import '../core/providers/app_providers.dart';
+import '../core/theme/app_theme.dart';
+import '../models/quest.dart';
 
 class TimedQuestScreen extends ConsumerStatefulWidget {
-  const TimedQuestScreen({super.key});
+  final Quest? quest;
+
+  const TimedQuestScreen({
+    super.key,
+    this.quest,
+  });
 
   @override
   ConsumerState<TimedQuestScreen> createState() => _TimedQuestScreenState();
 }
 
 class _TimedQuestScreenState extends ConsumerState<TimedQuestScreen> {
-  final FocusTimerService _timerService = FocusTimerService.instance;
-  int _selectedMinutes = 25;
-  bool _playMusic = true;
+  late int _totalSeconds;
+  late int _remainingSeconds;
+  Timer? _timer;
+  bool _isRunning = false;
+
+  // Music Player State
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isMusicOn = true;
+  String _selectedTrack = 'Lo-Fi Hujan';
+  double _volume = 0.65;
+
+  String? _feedbackMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    final duration = widget.quest?.durationMinutes ?? 25;
+    _totalSeconds = duration * 60;
+    _remainingSeconds = _totalSeconds;
+    _initAudio();
+  }
+
+  Future<void> _initAudio() async {
+    try {
+      await _audioPlayer.setVolume(_volume);
+      await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    } catch (_) {}
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  void _toggleTimer() {
+    if (_isRunning) {
+      _timer?.cancel();
+      setState(() => _isRunning = false);
+    } else {
+      setState(() => _isRunning = true);
+      _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (_remainingSeconds > 0) {
+          setState(() {
+            _remainingSeconds--;
+          });
+        } else {
+          timer.cancel();
+          setState(() => _isRunning = false);
+        }
+      });
+    }
+  }
+
+  void _resetTimer() {
+    _timer?.cancel();
+    setState(() {
+      _remainingSeconds = _totalSeconds;
+      _isRunning = false;
+    });
+  }
+
+  Future<void> _handleCompleteQuest() async {
+    _timer?.cancel();
+    setState(() => _isRunning = false);
+
+    final questId = widget.quest?.id;
+    final elapsedSeconds = _totalSeconds - _remainingSeconds;
+    final focusMinutes = (elapsedSeconds / 60).ceil();
+
+    if (questId != null) {
+      await ref.read(questsProvider.notifier).completeQuest(
+        questId,
+        focusMinutes: focusMinutes > 0 ? focusMinutes : 1,
+        hasTimerBonus: true,
+      );
+      await ref.read(heroProfileProvider.notifier).loadProfile();
+    }
+
+    final rawXp = widget.quest?.xpReward ?? 100;
+    final bonusXp = (rawXp * 1.20).round();
+    final coins = widget.quest?.coinReward ?? 60;
+
+    setState(() {
+      _feedbackMessage = 'Quest selesai tepat waktu! +$bonusXp XP & +$coins Coin diraih! 🎉';
+    });
+  }
+
+  String _formatTime(int seconds) {
+    final h = seconds ~/ 3600;
+    final m = (seconds % 3600) ~/ 60;
+    final s = seconds % 60;
+    return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
 
   @override
   Widget build(BuildContext context) {
+    final progress = (_totalSeconds > 0)
+        ? (_remainingSeconds / _totalSeconds).clamp(0.0, 1.0)
+        : 0.0;
+
+    final questTitle = widget.quest?.title ?? 'Kumpulkan Tugas PBO';
+    final questDiff = widget.quest?.difficulty ?? 'Hard';
+    final questXp = widget.quest?.xpReward ?? 100;
+    final questCoin = widget.quest?.coinReward ?? 60;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
-        elevation: 0,
-        title: const Text(
-          'Mode Fokus Belajar',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-      ),
-      body: ResponsiveWrapper(
-        child: ValueListenableBuilder<FocusTimerState>(
-          valueListenable: _timerService.stateNotifier,
-          builder: (context, state, _) {
-            return ValueListenableBuilder<int>(
-              valueListenable: _timerService.remainingSecondsNotifier,
-              builder: (context, remainingSec, _) {
-                final isRunning = state == FocusTimerState.running;
-                final isPaused = state == FocusTimerState.paused;
-                final isIdle = state == FocusTimerState.idle;
+      backgroundColor: AppColors.surfaceNav,
+      body: Stack(
+        children: [
+          // Background Cozy Focus Art
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/cozy_focus_bg.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (ctx, err, stack) => Container(
+                color: const Color(0xFF2A1745),
+              ),
+            ),
+          ),
+          // Darker overlay for contrast
+          Positioned.fill(
+            child: Container(
+              color: AppColors.surfaceNav.withValues(alpha: 0.55),
+            ),
+          ),
 
-                final displaySeconds = isIdle ? _selectedMinutes * 60 : remainingSec;
-                final minutes = displaySeconds ~/ 60;
-                final seconds = displaySeconds % 60;
-                final timeString =
-                    '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-
-                return Padding(
-                  padding: EdgeInsets.all(Responsive.px(context, 20)),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Bonus XP info banner
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF8B5CF6).withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFF8B5CF6)),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.bolt, color: Color(0xFFFBBF24), size: 18),
-                            SizedBox(width: 6),
-                            Text(
-                              '+20% Bonus XP untuk Sesi Fokus Selesai!',
-                              style: TextStyle(
-                                color: Color(0xFFE9D5FF),
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 36),
-
-                      // Circular Timer Representation
-                      Container(
-                        width: 220,
-                        height: 220,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFF1E293B),
-                          border: Border.all(
-                            color: isRunning
-                                ? const Color(0xFF10B981)
-                                : const Color(0xFF8B5CF6),
-                            width: 6,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: (isRunning
-                                      ? const Color(0xFF10B981)
-                                      : const Color(0xFF8B5CF6))
-                                  .withOpacity(0.2),
-                              blurRadius: 20,
-                              spreadRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                timeString,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 44,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                isRunning
-                                    ? 'FOKUS BERJALAN'
-                                    : (isPaused ? 'DIJEDA' : 'SIAP MULAI'),
-                                style: TextStyle(
-                                  color: isRunning
-                                      ? const Color(0xFF10B981)
-                                      : Colors.white54,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 36),
-
-                      // Duration Selector (when idle)
-                      if (isIdle) ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [15, 25, 45, 60].map((mins) {
-                            final isSel = _selectedMinutes == mins;
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: ChoiceChip(
-                                label: Text('${mins}m'),
-                                selected: isSel,
-                                onSelected: (_) => setState(() => _selectedMinutes = mins),
-                                selectedColor: const Color(0xFF8B5CF6),
-                                backgroundColor: const Color(0xFF1E293B),
-                                labelStyle: TextStyle(
-                                  color: isSel ? Colors.white : Colors.white70,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.music_note, color: Colors.white70, size: 18),
-                            const SizedBox(width: 8),
-                            const Text('Musik Fokus Lo-Fi', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                            Switch(
-                              value: _playMusic,
-                              activeColor: const Color(0xFF8B5CF6),
-                              onChanged: (v) => setState(() => _playMusic = v),
-                            ),
-                          ],
-                        ),
-                      ],
-
-                      const SizedBox(height: 24),
-
-                      // Control Buttons
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+          SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Column(
+                  children: [
+                    // --- 1. CONTEXTUAL HEADER ---
+                    Container(
+                      color: AppColors.surfaceNav.withValues(alpha: 0.95),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          if (isIdle)
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF8B5CF6),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: AppColors.outline, width: 2),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: AppColors.outline,
+                                    offset: Offset(0, 2),
+                                    blurRadius: 0,
+                                  ),
+                                ],
                               ),
-                              onPressed: () {
-                                _timerService.start(
-                                  questId: 1,
-                                  questTitle: 'Sesi Fokus $_selectedMinutes Menit',
-                                  durationMinutes: _selectedMinutes,
-                                  playMusic: _playMusic,
-                                );
-                              },
-                              icon: const Icon(Icons.play_arrow_rounded, size: 24),
-                              label: const Text('Mulai Fokus', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                              child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
                             ),
-
-                          if (isRunning) ...[
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFF59E0B),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          Text(
+                            'Mode Fokus',
+                            style: GoogleFonts.boogaloo(
+                              fontSize: 26,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: AppColors.accent,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: AppColors.outline, width: 1.5),
+                            ),
+                            child: Text(
+                              'TIMED',
+                              style: GoogleFonts.capriola(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.onAccent,
                               ),
-                              onPressed: () => _timerService.pause(),
-                              icon: const Icon(Icons.pause),
-                              label: const Text('Jeda'),
                             ),
-                            const SizedBox(width: 12),
-                            OutlinedButton.icon(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.redAccent,
-                                side: const BorderSide(color: Colors.redAccent),
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              onPressed: () => _timerService.stop(),
-                              icon: const Icon(Icons.stop),
-                              label: const Text('Hentikan'),
-                            ),
-                          ],
-
-                          if (isPaused) ...[
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF10B981),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              onPressed: () => _timerService.resume(),
-                              icon: const Icon(Icons.play_arrow),
-                              label: const Text('Lanjutkan'),
-                            ),
-                            const SizedBox(width: 12),
-                            OutlinedButton.icon(
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.redAccent,
-                                side: const BorderSide(color: Colors.redAccent),
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              ),
-                              onPressed: () => _timerService.stop(),
-                              icon: const Icon(Icons.stop),
-                              label: const Text('Batalkan'),
-                            ),
-                          ],
+                          ),
                         ],
                       ),
-                    ],
+                    ),
+
+                    // --- 2. MAIN RELAXING FOCUS STAGE ---
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            // Active Timed Quest Info Card
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: AppColors.outline, width: 2),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x474A2E70),
+                                    offset: Offset(0, 4),
+                                    blurRadius: 0,
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceContainer,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: AppColors.outline, width: 2),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: Image.asset(
+                                      'assets/images/karakter_hero_hoodie_ungu.jpg',
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (ctx, err, stack) => const Icon(
+                                        Icons.person,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Quest Aktif',
+                                              style: GoogleFonts.capriola(
+                                                fontSize: 10,
+                                                color: AppColors.primary,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.error,
+                                                borderRadius: BorderRadius.circular(4),
+                                                border: Border.all(color: AppColors.outline, width: 1),
+                                              ),
+                                              child: Text(
+                                                questDiff.toUpperCase(),
+                                                style: GoogleFonts.capriola(
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          questTitle,
+                                          style: GoogleFonts.capriola(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.onSurface,
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              '+$questXp XP',
+                                              style: GoogleFonts.splineSansMono(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.onSurface,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              '+$questCoin Coin',
+                                              style: GoogleFonts.splineSansMono(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.accent,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Centered Cozy Pixel Timer Card
+                            Container(
+                              padding: const EdgeInsets.all(18),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceNav.withValues(alpha: 0.95),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(color: AppColors.outline, width: 2),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x55000000),
+                                    offset: Offset(0, 6),
+                                    blurRadius: 0,
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(9999),
+                                      border: Border.all(color: AppColors.outline, width: 1.5),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.timer, color: AppColors.accent, size: 14),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Sisa Waktu Pengerjaan',
+                                          style: GoogleFonts.capriola(
+                                            fontSize: 11,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+
+                                  // Digital Display
+                                  Text(
+                                    _formatTime(_remainingSeconds),
+                                    style: GoogleFonts.splineSansMono(
+                                      fontSize: 36,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 2,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+
+                                  // Progress Bar
+                                  Container(
+                                    height: 14,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(9999),
+                                      border: Border.all(color: AppColors.outline, width: 2),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: FractionallySizedBox(
+                                      alignment: Alignment.centerLeft,
+                                      widthFactor: progress,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColors.accent,
+                                          borderRadius: BorderRadius.circular(9999),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+
+                                  Text(
+                                    'Fokus santai · Bonus +20% XP jika selesai tepat waktu',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.capriola(
+                                      fontSize: 10,
+                                      color: AppColors.outlineVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // Timer Controls
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton.icon(
+                                          onPressed: _toggleTimer,
+                                          icon: Icon(
+                                            _isRunning ? Icons.pause : Icons.play_arrow,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                          label: Text(
+                                            _isRunning ? 'Jeda' : (_remainingSeconds < _totalSeconds ? 'Lanjut' : 'Mulai'),
+                                            style: GoogleFonts.capriola(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.secondary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                              side: const BorderSide(color: AppColors.outline, width: 2),
+                                            ),
+                                            elevation: 0,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: ElevatedButton.icon(
+                                          onPressed: _resetTimer,
+                                          icon: const Icon(Icons.restart_alt, color: Colors.white, size: 20),
+                                          label: Text(
+                                            'Reset',
+                                            style: GoogleFonts.capriola(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.primary,
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(vertical: 12),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                              side: const BorderSide(color: AppColors.outline, width: 2),
+                                            ),
+                                            elevation: 0,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Pengaturan Musik Fokus
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppColors.outline, width: 2),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Color(0x474A2E70),
+                                    offset: Offset(0, 4),
+                                    blurRadius: 0,
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.music_note, color: AppColors.primary, size: 22),
+                                          const SizedBox(width: 8),
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Musik Fokus',
+                                                style: GoogleFonts.capriola(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColors.onSurface,
+                                                ),
+                                              ),
+                                              Text(
+                                                _isMusicOn
+                                                    ? 'Sedang diputar: $_selectedTrack'
+                                                    : 'Musik dijeda',
+                                                style: GoogleFonts.capriola(
+                                                  fontSize: 10,
+                                                  color: AppColors.primary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() => _isMusicOn = !_isMusicOn);
+                                        },
+                                        child: Container(
+                                          width: 52,
+                                          height: 28,
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            color: _isMusicOn ? AppColors.success : AppColors.surfaceContainerHigh,
+                                            borderRadius: BorderRadius.circular(9999),
+                                            border: Border.all(color: AppColors.outline, width: 2),
+                                          ),
+                                          child: Align(
+                                            alignment: _isMusicOn ? Alignment.centerRight : Alignment.centerLeft,
+                                            child: Container(
+                                              width: 20,
+                                              height: 20,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(color: AppColors.outline, width: 1.5),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+
+                                  // Track Buttons Grid
+                                  Row(
+                                    children: [
+                                      _buildTrackBtn('Lo-Fi Hujan', Icons.grain),
+                                      const SizedBox(width: 6),
+                                      _buildTrackBtn('8-Bit Santai', Icons.videogame_asset),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      _buildTrackBtn('Kafe Malam', Icons.local_cafe),
+                                      const SizedBox(width: 6),
+                                      _buildTrackBtn('File MP3', Icons.audio_file),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+
+                                  // Volume Slider
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.volume_up, color: AppColors.primary, size: 18),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Volume',
+                                        style: GoogleFonts.capriola(fontSize: 11, color: AppColors.onSurface),
+                                      ),
+                                      Expanded(
+                                        child: Slider(
+                                          value: _volume,
+                                          min: 0.0,
+                                          max: 1.0,
+                                          activeColor: AppColors.primary,
+                                          onChanged: (val) {
+                                            setState(() => _volume = val);
+                                            _audioPlayer.setVolume(val);
+                                          },
+                                        ),
+                                      ),
+                                      Text(
+                                        '${(_volume * 100).round()}%',
+                                        style: GoogleFonts.splineSansMono(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.onSurface,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Feedback Banner
+                            if (_feedbackMessage != null) ...[
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accentContainer,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppColors.outline, width: 2),
+                                ),
+                                child: Text(
+                                  _feedbackMessage!,
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.capriola(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.onAccentContainer,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                            ],
+
+                            // Complete Quest Now CTA
+                            ElevatedButton.icon(
+                              onPressed: _handleCompleteQuest,
+                              icon: const Icon(Icons.check_circle, color: Colors.white, size: 22),
+                              label: Text(
+                                'Selesaikan Quest',
+                                style: GoogleFonts.capriola(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.success,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: const BorderSide(color: AppColors.outline, width: 2),
+                                ),
+                                elevation: 0,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrackBtn(String title, IconData icon) {
+    final isSelected = _selectedTrack == title;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedTrack = title;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.accentContainer : AppColors.surfaceContainer,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? AppColors.outline : AppColors.outlineVariant,
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: AppColors.onSurface),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.capriola(
+                    fontSize: 11,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: AppColors.onSurface,
                   ),
-                );
-              },
-            );
-          },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

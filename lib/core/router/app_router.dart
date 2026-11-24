@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/app_providers.dart';
 import '../theme/app_theme.dart';
+import '../../models/quest.dart';
 import '../../screens/onboarding_screen.dart';
+import '../../screens/add_quest_screen.dart';
+import '../../screens/quest_history_screen.dart';
 import '../../screens/home_screen.dart';
 import '../../screens/quests_screen.dart';
 import '../../screens/timed_quest_screen.dart';
@@ -104,6 +107,8 @@ class AppRouter {
   static const String walletNotification = '/wallet-notification';
   static const String customize = '/customize';
   static const String roomUpgrade = '/room-upgrade';
+  static const String addQuest = '/add-quest';
+  static const String questHistory = '/quest-history';
 
   // Penpot Hash Link aliases
   static const String hashHome = '#home';
@@ -118,6 +123,9 @@ class AppRouter {
   static const String hashHeroCostume = '#hero-costume';
   static const String hashHeroStats = '#hero-stats';
   static const String hashRoomUpgrade = '#room-upgrade';
+  static const String hashAddQuest = '#add-quest';
+  static const String hashAddQuestReminder = '#add-quest-reminder';
+  static const String hashQuestHistory = '#quest-history';
 
   static Route<dynamic> onGenerateRoute(RouteSettings routeSettings) {
     switch (routeSettings.name) {
@@ -137,7 +145,19 @@ class AppRouter {
 
       case timedQuest:
       case hashTimedQuest:
-        return MaterialPageRoute(builder: (_) => const TimedQuestScreen());
+        final questArg = routeSettings.arguments as Quest?;
+        return MaterialPageRoute(builder: (_) => TimedQuestScreen(quest: questArg));
+
+      case addQuest:
+      case hashAddQuest:
+        return MaterialPageRoute(builder: (_) => const AddQuestScreen(initialIsTimed: true));
+
+      case hashAddQuestReminder:
+        return MaterialPageRoute(builder: (_) => const AddQuestScreen(initialIsTimed: false));
+
+      case questHistory:
+      case hashQuestHistory:
+        return MaterialPageRoute(builder: (_) => const QuestHistoryScreen());
 
       case wallet:
       case hashWallet:

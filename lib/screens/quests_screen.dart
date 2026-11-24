@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/providers/app_providers.dart';
 import '../core/router/app_router.dart';
-import '../core/theme/pixel_theme.dart';
-import '../core/utils/responsive.dart';
+import '../core/theme/app_theme.dart';
+import '../models/hero_profile.dart';
 import '../models/quest.dart';
-import '../widgets/pixel_scaffold.dart';
 
 class QuestsScreen extends ConsumerStatefulWidget {
   const QuestsScreen({super.key});
@@ -15,236 +15,276 @@ class QuestsScreen extends ConsumerStatefulWidget {
 }
 
 class _QuestsScreenState extends ConsumerState<QuestsScreen> {
-  String _selectedCategory = 'all';
+  String _selectedTab = 'Daily'; // 'Daily', 'Weekly', 'Epic', 'Timed'
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _applyTabFilter(_selectedTab);
+    });
+  }
+
+  void _applyTabFilter(String tab) {
+    setState(() {
+      _selectedTab = tab;
+    });
+
+    if (tab == 'Timed') {
+      ref.read(questsProvider.notifier).loadQuests(isTimed: true);
+    } else {
+      ref.read(questsProvider.notifier).loadQuests(category: tab.toLowerCase());
+    }
+  }
+
+  Future<void> _handleCompleteReminderQuest(Quest quest) async {
+    if (quest.id == null || quest.isCompleted) return;
+
+    await ref.read(questsProvider.notifier).completeQuest(
+      quest.id!,
+      focusMinutes: 0,
+      hasTimerBonus: false,
+    );
+
+    // Refresh hero profile so HUD updates XP and Coins live
+    await ref.read(heroProfileProvider.notifier).loadProfile();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.surfaceNav,
+          content: Text(
+            'Quest selesai! +${quest.xpReward} XP & +${quest.coinReward} Coin diraih! 🎉',
+            style: GoogleFonts.capriola(color: Colors.white, fontSize: 13),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final questsAsync = ref.watch(questsProvider);
     final heroAsync = ref.watch(heroProfileProvider);
+    final questsAsync = ref.watch(questsProvider);
 
-    return PixelScaffold(
-      currentTabIndex: 1,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: PixelColors.coinGold,
-        foregroundColor: PixelColors.deepPurple,
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: PixelColors.deepPurple, width: 2),
-        ),
-        onPressed: () => _showAddQuestDialog(context),
-        child: const Icon(Icons.add, size: 28),
-      ),
-      body: Column(
-        children: [
-          // ==========================================
-          // 1. RIBBON BANNER HEADER ("PAPAN MISI HARIAN")
-          // ==========================================
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              Responsive.px(context, 14),
-              12,
-              Responsive.px(context, 14),
-              8,
-            ),
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: PixelColors.badgePurple,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: PixelColors.deepPurple, width: 2),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x334A2E70),
-                    offset: Offset(0, 3),
-                    blurRadius: 0,
-                  ),
-                ],
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('⚔️', style: TextStyle(fontSize: 16)),
-                  SizedBox(width: 8),
-                  Text(
-                    'PAPAN MISI HARIAN',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Text('⚔️', style: TextStyle(fontSize: 16)),
-                ],
-              ),
-            ),
-          ),
-
-          // ==========================================
-          // 2. CATEGORY FILTER TABS
-          // ==========================================
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: Responsive.px(context, 14), vertical: 4),
-            child: Row(
+    return Scaffold(
+      backgroundColor: AppColors.surface,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Column(
               children: [
-                _filterChip('Semua', 'all'),
-                const SizedBox(width: 8),
-                _filterChip('Harian', 'daily'),
-                const SizedBox(width: 8),
-                _filterChip('Mingguan', 'weekly'),
-                const SizedBox(width: 8),
-                _filterChip('Epik', 'epic'),
-                const SizedBox(width: 8),
-                _filterChip('Fokus ⏱', 'timed'),
-              ],
-            ),
-          ),
-
-          // ==========================================
-          // 3. STREAK BANNER
-          // ==========================================
-          heroAsync.maybeWhen(
-            data: (hero) => Padding(
-              padding: EdgeInsets.fromLTRB(
-                Responsive.px(context, 14),
-                6,
-                Responsive.px(context, 14),
-                6,
-              ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: PixelColors.cardParchmentGold,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: PixelColors.deepPurple, width: 1.5),
+                // --- 1. TOP STATUS HUD ---
+                heroAsync.maybeWhen(
+                  data: (hero) => _buildTopStatusHud(hero),
+                  orElse: () => const SizedBox(height: 50),
                 ),
-                child: Row(
-                  children: [
-                    const Text('🔥', style: TextStyle(fontSize: 16)),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Streak: ${hero.streakDays} Hari Berturut-turut! (+20% XP)',
-                        style: const TextStyle(
-                          color: PixelColors.textDark,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            orElse: () => const SizedBox.shrink(),
-          ),
 
-          // ==========================================
-          // 4. QUESTS LIST
-          // ==========================================
-          Expanded(
-            child: questsAsync.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: PixelColors.badgePurple),
-              ),
-              error: (err, _) => Center(
-                child: Text('Error: $err', style: const TextStyle(color: PixelColors.redExpense)),
-              ),
-              data: (quests) {
-                final filtered = quests.where((q) {
-                  if (_selectedCategory == 'all') return true;
-                  if (_selectedCategory == 'timed') return q.isTimed;
-                  return q.category == _selectedCategory;
-                }).toList();
-
-                if (filtered.isEmpty) {
-                  return Center(
-                    child: Container(
-                      margin: const EdgeInsets.all(24),
-                      padding: const EdgeInsets.all(20),
-                      decoration: PixelDecorations.card(
-                        color: PixelColors.cardParchment,
-                        radius: 16,
-                      ),
-                      child: const Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('📜', style: TextStyle(fontSize: 32)),
-                          SizedBox(height: 10),
-                          Text(
-                            'Belum ada misi pada kategori ini.',
-                            style: TextStyle(
-                              color: PixelColors.textDark,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            'Tekan tombol (+) kuning di bawah untuk menambah misi baru!',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: PixelColors.textMuted,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                return ListView.separated(
-                  padding: EdgeInsets.fromLTRB(
-                    Responsive.px(context, 14),
-                    6,
-                    Responsive.px(context, 14),
-                    80, // Space for FAB
-                  ),
-                  itemCount: filtered.length + 1, // +1 for History link at bottom
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    if (index == filtered.length) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: InkWell(
-                          onTap: () => _showHistoryModal(context),
-                          borderRadius: BorderRadius.circular(12),
+                // --- 2. MAIN SCROLLABLE QUEST BOARD ---
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Ribbon Header
+                        Center(
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: PixelDecorations.button(
-                              color: PixelColors.cardParchment,
-                              radius: 12,
-                            ),
-                            alignment: Alignment.center,
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.history_edu_rounded, size: 16, color: PixelColors.badgePurple),
-                                SizedBox(width: 6),
-                                Text(
-                                  'Lihat Riwayat & Statistik Quest',
-                                  style: TextStyle(
-                                    color: PixelColors.textDark,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppColors.outline, width: 2),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: AppColors.outline,
+                                  offset: Offset(0, 3),
+                                  blurRadius: 0,
                                 ),
                               ],
                             ),
+                            child: Text(
+                              'Quest Board',
+                              style: GoogleFonts.boogaloo(
+                                fontSize: 26,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
-                      );
-                    }
+                        const SizedBox(height: 14),
 
-                    final quest = filtered[index];
-                    return _PixelQuestCard(quest: quest);
-                  },
-                );
-              },
+                        // Category Tabs: Daily | Weekly | Epic | Timed
+                        Row(
+                          children: [
+                            _buildTabButton('Daily'),
+                            const SizedBox(width: 6),
+                            _buildTabButton('Weekly'),
+                            const SizedBox(width: 6),
+                            _buildTabButton('Epic'),
+                            const SizedBox(width: 6),
+                            _buildTabButton('Timed'),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Quest List Cards
+                        questsAsync.when(
+                          loading: () => const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(32),
+                              child: CircularProgressIndicator(color: AppColors.primary),
+                            ),
+                          ),
+                          error: (err, _) => Center(
+                            child: Text('Gagal memuat quest: $err'),
+                          ),
+                          data: (quests) {
+                            if (quests.isEmpty) {
+                              return _buildEmptyQuestsView();
+                            }
+
+                            return ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: quests.length,
+                              separatorBuilder: (ctx, index) => const SizedBox(height: 12),
+                              itemBuilder: (ctx, index) {
+                                final quest = quests[index];
+                                return _buildQuestCard(quest);
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Link ke Riwayat & Statistik
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pushNamed(context, AppRouter.hashQuestHistory);
+                          },
+                          icon: const Icon(Icons.analytics, color: AppColors.primary, size: 20),
+                          label: Text(
+                            'Buka Riwayat & Statistik Quest',
+                            style: GoogleFonts.capriola(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: AppColors.surfaceContainerLow,
+                            side: const BorderSide(color: AppColors.outline, width: 2),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // --- 3. BOTTOM NAVIGATION BAR (5 SLOTS) ---
+                _buildBottomNavigationBar(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopStatusHud(HeroProfile hero) {
+    final xpRatio = (hero.xpNext > 0) ? (hero.xp / hero.xpNext).clamp(0.0, 1.0) : 0.0;
+
+    return Container(
+      color: AppColors.surfaceNav,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.outline, width: 2),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Hero',
+                  style: GoogleFonts.capriola(fontSize: 10, color: Colors.white, height: 1.0),
+                ),
+                Text(
+                  'Lv.${hero.level}',
+                  style: GoogleFonts.boogaloo(fontSize: 20, color: Colors.white, height: 1.0),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('XP Hero', style: GoogleFonts.capriola(fontSize: 11, color: Colors.white)),
+                    Text(
+                      '${hero.xp} / ${hero.xpNext}',
+                      style: GoogleFonts.splineSansMono(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(9999),
+                    border: Border.all(color: AppColors.outline, width: 2),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: xpRatio,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.success,
+                        borderRadius: BorderRadius.circular(9999),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(9999),
+              border: Border.all(color: AppColors.outline, width: 2),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.monetization_on, color: AppColors.accent, size: 18),
+                const SizedBox(width: 4),
+                Text(
+                  '${hero.coins}',
+                  style: GoogleFonts.splineSansMono(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ],
             ),
           ),
         ],
@@ -252,455 +292,432 @@ class _QuestsScreenState extends ConsumerState<QuestsScreen> {
     );
   }
 
-  Widget _filterChip(String label, String categoryKey) {
-    final isSelected = _selectedCategory == categoryKey;
+  Widget _buildTabButton(String tab) {
+    final isSelected = _selectedTab == tab;
 
-    return InkWell(
-      onTap: () => setState(() => _selectedCategory = categoryKey),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? PixelColors.badgePurple : PixelColors.cardParchment,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: PixelColors.deepPurple, width: 1.5),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : PixelColors.textDark,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            fontSize: 12,
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showAddQuestDialog(BuildContext context) {
-    final titleController = TextEditingController();
-    String category = 'daily';
-    String difficulty = 'normal';
-    int xp = 50;
-    int coins = 30;
-    bool isTimed = false;
-    int duration = 25;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Container(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-          ),
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _applyTabFilter(tab),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: PixelColors.cardParchment,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border.all(color: PixelColors.deepPurple, width: 2),
+            color: isSelected ? AppColors.secondary : AppColors.primary,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.outline, width: 2),
+            boxShadow: isSelected
+                ? const [
+                    BoxShadow(
+                      color: AppColors.outline,
+                      offset: Offset(0, 2),
+                      blurRadius: 0,
+                    ),
+                  ]
+                : null,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    '⚔️ Tambah Misi Baru',
-                    style: TextStyle(
-                      color: PixelColors.textDark,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: PixelColors.deepPurple),
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: titleController,
-                style: const TextStyle(color: PixelColors.textDark, fontWeight: FontWeight.bold),
-                decoration: InputDecoration(
-                  hintText: 'Nama Misi (contoh: Belajar Kalkulus)',
-                  hintStyle: const TextStyle(color: PixelColors.textMuted),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: PixelColors.badgePurple, width: 2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: category,
-                      dropdownColor: PixelColors.cardParchment,
-                      style: const TextStyle(color: PixelColors.textDark, fontSize: 13, fontWeight: FontWeight.bold),
-                      decoration: InputDecoration(
-                        labelText: 'Kategori',
-                        labelStyle: const TextStyle(color: PixelColors.textMuted),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
-                        ),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'daily', child: Text('Harian')),
-                        DropdownMenuItem(value: 'weekly', child: Text('Mingguan')),
-                        DropdownMenuItem(value: 'epic', child: Text('Epik')),
-                      ],
-                      onChanged: (val) => setModalState(() => category = val ?? 'daily'),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: difficulty,
-                      dropdownColor: PixelColors.cardParchment,
-                      style: const TextStyle(color: PixelColors.textDark, fontSize: 13, fontWeight: FontWeight.bold),
-                      decoration: InputDecoration(
-                        labelText: 'Tingkat',
-                        labelStyle: const TextStyle(color: PixelColors.textMuted),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: PixelColors.deepPurple, width: 1.5),
-                        ),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'easy', child: Text('Mudah')),
-                        DropdownMenuItem(value: 'normal', child: Text('Normal')),
-                        DropdownMenuItem(value: 'hard', child: Text('Sulit')),
-                      ],
-                      onChanged: (val) {
-                        setModalState(() {
-                          difficulty = val ?? 'normal';
-                          if (difficulty == 'easy') {
-                            xp = 30;
-                            coins = 20;
-                          } else if (difficulty == 'normal') {
-                            xp = 50;
-                            coins = 30;
-                          } else {
-                            xp = 100;
-                            coins = 60;
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: PixelColors.deepPurple, width: 1.5),
-                ),
-                child: SwitchListTile(
-                  title: const Text(
-                    'Quest Bertimer (Mode Fokus)',
-                    style: TextStyle(color: PixelColors.textDark, fontSize: 13, fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: const Text(
-                    'Gunakan timer pomodoro & countdown',
-                    style: TextStyle(color: PixelColors.textMuted, fontSize: 11),
-                  ),
-                  value: isTimed,
-                  activeColor: PixelColors.badgePurple,
-                  onChanged: (v) => setModalState(() => isTimed = v),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: PixelColors.coinGold,
-                  foregroundColor: PixelColors.textDark,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    side: const BorderSide(color: PixelColors.deepPurple, width: 2),
-                  ),
-                  elevation: 2,
-                ),
-                onPressed: () {
-                  if (titleController.text.trim().isEmpty) return;
-                  final newQuest = Quest(
-                    title: titleController.text.trim(),
-                    category: category,
-                    difficulty: difficulty,
-                    xpReward: xp,
-                    coinReward: coins,
-                    isTimed: isTimed,
-                    durationMinutes: duration,
-                    createdAt: DateTime.now().toIso8601String(),
-                  );
-                  ref.read(questsProvider.notifier).addQuest(newQuest);
-                  Navigator.pop(ctx);
-                },
-                child: const Text('Simpan Misi Baru ⚔️', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              ),
-            ],
+          child: Text(
+            tab,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.capriola(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _showHistoryModal(BuildContext context) async {
-    final history = await ref.read(questDaoProvider).getQuestHistory();
+  Widget _buildQuestCard(Quest quest) {
+    final isCompleted = quest.isCompleted;
+    final isTimed = quest.isTimed;
 
-    if (!context.mounted) return;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: PixelColors.cardParchment,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border.all(color: PixelColors.deepPurple, width: 2),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  '📜 Riwayat Misi Selesai',
-                  style: TextStyle(
-                    color: PixelColors.textDark,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: PixelColors.deepPurple),
-                  onPressed: () => Navigator.pop(ctx),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: history.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Belum ada riwayat misi yang selesai.',
-                        style: TextStyle(color: PixelColors.textMuted),
-                      ),
-                    )
-                  : ListView.separated(
-                      itemCount: history.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 8),
-                      itemBuilder: (context, i) {
-                        final h = history[i];
-                        return Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: PixelColors.deepPurple, width: 1.5),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.check_circle_rounded, color: PixelColors.greenSuccess, size: 20),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      h.title,
-                                      style: const TextStyle(
-                                        color: PixelColors.textDark,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    Text(
-                                      '+${h.xpEarned} XP  |  +${h.coinEarned} 🪙',
-                                      style: const TextStyle(
-                                        color: PixelColors.badgePurple,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                h.completedAt.split('T').first,
-                                style: const TextStyle(color: PixelColors.textMuted, fontSize: 10),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PixelQuestCard extends ConsumerWidget {
-  final Quest quest;
-
-  const _PixelQuestCard({required this.quest});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isDone = quest.isCompleted;
+    Color diffColor;
+    switch (quest.difficulty.toLowerCase()) {
+      case 'easy':
+        diffColor = AppColors.success;
+        break;
+      case 'hard':
+        diffColor = AppColors.error;
+        break;
+      case 'normal':
+      default:
+        diffColor = AppColors.warning;
+        break;
+    }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: PixelDecorations.card(
-        color: isDone ? PixelColors.cardParchmentGold : PixelColors.cardParchment,
-        radius: 12,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isCompleted ? AppColors.accentContainer : AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.outline, width: 2),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x334A2E70),
+            offset: Offset(0, 4),
+            blurRadius: 0,
+          ),
+        ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Pixel Checkbox
-          GestureDetector(
-            onTap: isDone
-                ? null
-                : () {
-                    ref.read(questsProvider.notifier).completeQuest(quest.id!);
-                    ref.read(heroProfileProvider.notifier).loadProfile();
-                  },
-            child: Container(
-              width: 26,
-              height: 26,
-              decoration: BoxDecoration(
-                color: isDone ? PixelColors.greenSuccess : Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: PixelColors.deepPurple,
-                  width: 2,
-                ),
-              ),
-              child: isDone
-                  ? const Icon(Icons.check, color: Colors.white, size: 18)
-                  : null,
+          // Icon Box
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: isCompleted ? AppColors.surfaceContainerLow : AppColors.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.outline, width: 2),
+            ),
+            child: Icon(
+              isTimed ? Icons.timer : Icons.edit_note,
+              color: isCompleted ? AppColors.success : AppColors.primary,
+              size: 26,
             ),
           ),
           const SizedBox(width: 12),
 
-          // Title & Rewards
+          // Quest Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  quest.title,
-                  style: TextStyle(
-                    color: isDone ? PixelColors.textMuted : PixelColors.textDark,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    decoration: isDone ? TextDecoration.lineThrough : null,
-                  ),
-                ),
-                const SizedBox(height: 4),
+                // Title & Difficulty Badge
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // XP Reward Chip
+                    Expanded(
+                      child: Text(
+                        quest.title,
+                        style: GoogleFonts.capriola(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.onSurface,
+                          decoration: isCompleted ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                       decoration: BoxDecoration(
-                        color: PixelColors.badgePurple,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: PixelColors.deepPurple, width: 1),
+                        color: diffColor,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: AppColors.outline, width: 1),
                       ),
                       child: Text(
-                        '+${quest.xpReward} XP',
-                        style: const TextStyle(
+                        quest.difficulty.toUpperCase(),
+                        style: GoogleFonts.capriola(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'monospace',
                         ),
                       ),
                     ),
-                    const SizedBox(width: 5),
+                  ],
+                ),
+                const SizedBox(height: 6),
 
-                    // Coin Reward Chip
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: PixelColors.coinGold,
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: PixelColors.deepPurple, width: 1),
-                      ),
-                      child: Text(
-                        '+${quest.coinReward} 🪙',
-                        style: const TextStyle(
-                          color: PixelColors.textDark,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'monospace',
+                // Rewards & Mode Tag
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: AppColors.primary, size: 16),
+                        const SizedBox(width: 2),
+                        Text(
+                          '+${quest.xpReward} XP',
+                          style: GoogleFonts.splineSansMono(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.onSurface,
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.monetization_on, color: AppColors.accent, size: 16),
+                        const SizedBox(width: 2),
+                        Text(
+                          '+${quest.coinReward}',
+                          style: GoogleFonts.splineSansMono(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.onSurface,
+                          ),
+                        ),
+                      ],
                     ),
-
-                    if (quest.isTimed) ...[
-                      const SizedBox(width: 5),
+                    if (isTimed)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                         decoration: BoxDecoration(
-                          color: PixelColors.blueFocus,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: PixelColors.deepPurple, width: 1),
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: AppColors.outline, width: 1),
                         ),
                         child: Text(
-                          '${quest.durationMinutes}m ⏱',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          'Timer ${quest.durationMinutes}m',
+                          style: GoogleFonts.capriola(fontSize: 10, color: Colors.white),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // Action Area: Timed vs Reminder vs Completed
+                if (isCompleted)
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.success,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.outline, width: 1.5),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.check, color: Colors.white, size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Selesai',
+                              style: GoogleFonts.capriola(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ],
-                ),
+                  )
+                else if (isTimed)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.outline, width: 1.5),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.lock, color: AppColors.outline, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Selesaikan timer',
+                              style: GoogleFonts.capriola(fontSize: 10, color: AppColors.onSurface),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRouter.timedQuest,
+                            arguments: quest,
+                          );
+                        },
+                        icon: const Icon(Icons.play_arrow, color: Colors.white, size: 16),
+                        label: Text(
+                          'Mulai Timer',
+                          style: GoogleFonts.capriola(fontSize: 11, fontWeight: FontWeight.bold),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.secondary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: const BorderSide(color: AppColors.outline, width: 2),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => _handleCompleteReminderQuest(quest),
+                        icon: const Icon(Icons.check_box_outline_blank, color: AppColors.primary, size: 18),
+                        label: Text(
+                          'Centang Selesai',
+                          style: GoogleFonts.capriola(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.surfaceContainer,
+                          foregroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: const BorderSide(color: AppColors.outline, width: 2),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
-
-          // Timed action button
-          if (quest.isTimed && !isDone)
-            IconButton(
-              icon: const Icon(Icons.play_circle_fill_rounded, color: PixelColors.blueFocus, size: 28),
-              onPressed: () => Navigator.pushNamed(context, AppRouter.timedQuest),
-            ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyQuestsView() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.outline, width: 2),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.sports_esports, size: 48, color: AppColors.primary),
+          const SizedBox(height: 10),
+          Text(
+            'Belum ada quest di tab $_selectedTab!',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.boogaloo(fontSize: 20, color: AppColors.onSurface),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Tambah quest baru untuk mulai meraih XP dan Coin.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.capriola(fontSize: 12, color: AppColors.onSurface),
+          ),
+          const SizedBox(height: 14),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRouter.hashAddQuest);
+            },
+            icon: const Icon(Icons.add, color: Colors.white, size: 18),
+            label: Text(
+              'Tambah Quest',
+              style: GoogleFonts.capriola(fontSize: 13, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.secondary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(color: AppColors.outline, width: 2),
+              ),
+              elevation: 0,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Container(
+      color: AppColors.surfaceNav,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(
+            icon: Icons.home,
+            label: 'Home',
+            isActive: false,
+            onTap: () => Navigator.pushReplacementNamed(context, AppRouter.home),
+          ),
+          _buildNavItem(
+            icon: Icons.assignment,
+            label: 'Quests',
+            isActive: true,
+            onTap: () {},
+          ),
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, AppRouter.hashAddQuest),
+            child: Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: AppColors.secondary,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.outline, width: 2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: AppColors.outline,
+                    offset: Offset(0, 2),
+                    blurRadius: 0,
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.add, color: Colors.white, size: 28),
+            ),
+          ),
+          _buildNavItem(
+            icon: Icons.account_balance_wallet,
+            label: 'Wallet',
+            isActive: false,
+            onTap: () => Navigator.pushReplacementNamed(context, AppRouter.wallet),
+          ),
+          _buildNavItem(
+            icon: Icons.person,
+            label: 'Hero',
+            isActive: false,
+            onTap: () => Navigator.pushReplacementNamed(context, AppRouter.customize),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: isActive
+            ? BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.outlineVariant, width: 2),
+              )
+            : null,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Colors.white, size: 22),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: GoogleFonts.capriola(
+                fontSize: 10,
+                color: Colors.white,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

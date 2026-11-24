@@ -10,21 +10,29 @@ class QuestDao {
       : dbHelper = helper ?? DatabaseHelper.instance,
         heroDao = hero ?? HeroDao();
 
-  Future<List<Quest>> getQuests({String? category, bool? isCompleted}) async {
+  Future<List<Quest>> getQuests({
+    String? category,
+    bool? isCompleted,
+    bool? isTimed,
+  }) async {
     final db = await dbHelper.database;
-    String? whereClause;
+    List<String> conditions = [];
     List<dynamic> whereArgs = [];
 
-    if (category != null && isCompleted != null) {
-      whereClause = 'category = ? AND is_completed = ?';
-      whereArgs = [category, isCompleted ? 1 : 0];
-    } else if (category != null) {
-      whereClause = 'category = ?';
-      whereArgs = [category];
-    } else if (isCompleted != null) {
-      whereClause = 'is_completed = ?';
-      whereArgs = [isCompleted ? 1 : 0];
+    if (category != null) {
+      conditions.add('LOWER(category) = ?');
+      whereArgs.add(category.toLowerCase());
     }
+    if (isCompleted != null) {
+      conditions.add('is_completed = ?');
+      whereArgs.add(isCompleted ? 1 : 0);
+    }
+    if (isTimed != null) {
+      conditions.add('is_timed = ?');
+      whereArgs.add(isTimed ? 1 : 0);
+    }
+
+    final whereClause = conditions.isNotEmpty ? conditions.join(' AND ') : null;
 
     final List<Map<String, dynamic>> maps = await db.query(
       'quests',
@@ -116,14 +124,41 @@ class QuestDao {
     return true;
   }
 
-  Future<List<QuestHistory>> getQuestHistory({int limit = 50}) async {
+  Future<List<QuestHistory>> getQuestHistory({int limit = 50, String filter = 'Semua'}) async {
     final db = await dbHelper.database;
+    String? whereClause;
+
+    if (filter == 'Hari Ini') {
+      whereClause = "date(completed_at) = date('now', 'localtime')";
+    } else if (filter == 'Minggu Ini') {
+      whereClause = "date(completed_at) >= date('now', 'localtime', '-7 days')";
+    } else if (filter == 'Bulan Ini') {
+      whereClause = "date(completed_at) >= date('now', 'localtime', 'start of month')";
+    }
+
     final List<Map<String, dynamic>> maps = await db.query(
       'quest_history',
+      where: whereClause,
       orderBy: 'id DESC',
       limit: limit,
     );
     return List.generate(maps.length, (i) => QuestHistory.fromMap(maps[i]));
+  }
+
+  /// Calculates aggregate statistics for QuestHistory screen
+  Future<Map<String, dynamic>> getHistoryStats() async {
+    final db = await dbHelper.database;
+
+    final countResult = await db.rawQuery('SELECT COUNT(*) as total, SUM(coin_earned) as total_coins, SUM(focus_minutes) as total_focus FROM quest_history');
+    final totalCompleted = (countResult.first['total'] as int?) ?? 0;
+    final totalCoins = (countResult.first['total_coins'] as int?) ?? 0;
+    final totalFocus = (countResult.first['total_focus'] as int?) ?? 0;
+
+    return {
+      'total_completed': totalCompleted,
+      'total_coins': totalCoins,
+      'total_focus_minutes': totalFocus,
+    };
   }
 
   /// Resets daily recurring quests to uncompleted state

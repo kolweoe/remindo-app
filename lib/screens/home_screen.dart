@@ -121,7 +121,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
               subtitle: 'Mulai sesi belajar dengan hitungan mundur',
               onTap: () {
                 Navigator.pop(ctx);
-                Navigator.pushNamed(context, AppRouter.timedQuest);
+                Navigator.pushNamed(context, AppRouter.hashAddQuest);
               },
             ),
             const SizedBox(height: 10),
@@ -132,7 +132,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
               subtitle: 'Catat tugas dengan jam alarm pengingat',
               onTap: () {
                 Navigator.pop(ctx);
-                Navigator.pushNamed(context, AppRouter.quests);
+                Navigator.pushNamed(context, AppRouter.hashAddQuestReminder);
               },
             ),
             const SizedBox(height: 10),

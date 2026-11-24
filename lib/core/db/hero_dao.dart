@@ -65,6 +65,27 @@ class HeroDao {
     8: 'Ranjang tingkat loft, setup dual-monitor ungu, lampu peri, dan trofi MAX!',
   };
 
+  static Map<String, int> calculateQuestReward({
+    required String difficulty,
+    required bool isTimed,
+  }) {
+    switch (difficulty.toLowerCase()) {
+      case 'easy':
+        return isTimed
+            ? {'xp': 25, 'coins': 15}
+            : {'xp': 15, 'coins': 10};
+      case 'hard':
+        return isTimed
+            ? {'xp': 100, 'coins': 70}
+            : {'xp': 60, 'coins': 40};
+      case 'normal':
+      default:
+        return isTimed
+            ? {'xp': 50, 'coins': 35}
+            : {'xp': 30, 'coins': 20};
+    }
+  }
+
   /// Checks whether a valid hero profile already exists in SQLite
   Future<bool> hasHeroProfile() async {
     final db = await dbHelper.database;
@@ -182,11 +203,12 @@ class HeroDao {
       }
     }
 
-    // 20% XP Bonus condition: streak >= 3 or timer bonus
-    int xpToAdd = rawXp;
-    if (streak >= 3 || hasTimerBonus) {
-      xpToAdd = (rawXp * 1.20).round();
-    }
+    // Calculate XP bonuses: Streak >= 3 (+20%), Timer Bonus (+20%)
+    int xpBonusPercent = 0;
+    if (streak >= 3) xpBonusPercent += 20;
+    if (hasTimerBonus) xpBonusPercent += 20;
+
+    int xpToAdd = (rawXp * (100 + xpBonusPercent) / 100).round();
 
     int currentXp = hero.xp + xpToAdd;
     int currentCoins = hero.coins + rawCoins;

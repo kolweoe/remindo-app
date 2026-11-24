@@ -96,16 +96,18 @@ final heroProfileProvider =
 class QuestsNotifier extends StateNotifier<AsyncValue<List<Quest>>> {
   final QuestDao _dao;
   String? _currentCategory;
+  bool? _currentIsTimed;
 
   QuestsNotifier(this._dao) : super(const AsyncValue.loading()) {
     loadQuests();
   }
 
-  Future<void> loadQuests({String? category}) async {
+  Future<void> loadQuests({String? category, bool? isTimed}) async {
     try {
       _currentCategory = category;
+      _currentIsTimed = isTimed;
       state = const AsyncValue.loading();
-      final list = await _dao.getQuests(category: category);
+      final list = await _dao.getQuests(category: category, isTimed: isTimed);
       state = AsyncValue.data(list);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -114,23 +116,33 @@ class QuestsNotifier extends StateNotifier<AsyncValue<List<Quest>>> {
 
   Future<void> addQuest(Quest quest) async {
     await _dao.insertQuest(quest);
-    await loadQuests(category: _currentCategory);
+    await loadQuests(category: _currentCategory, isTimed: _currentIsTimed);
   }
 
   Future<void> completeQuest(int id, {int focusMinutes = 0, bool hasTimerBonus = false}) async {
     await _dao.completeQuest(id, focusMinutes: focusMinutes, hasTimerBonus: hasTimerBonus);
-    await loadQuests(category: _currentCategory);
+    await loadQuests(category: _currentCategory, isTimed: _currentIsTimed);
   }
 
   Future<void> deleteQuest(int id) async {
     await _dao.deleteQuest(id);
-    await loadQuests(category: _currentCategory);
+    await loadQuests(category: _currentCategory, isTimed: _currentIsTimed);
   }
 }
 
 final questsProvider =
     StateNotifierProvider<QuestsNotifier, AsyncValue<List<Quest>>>((ref) {
   return QuestsNotifier(ref.watch(questDaoProvider));
+});
+
+final questHistoryProvider = FutureProvider.family<List<QuestHistory>, String>((ref, filter) async {
+  final dao = ref.watch(questDaoProvider);
+  return await dao.getQuestHistory(filter: filter);
+});
+
+final questStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+  final dao = ref.watch(questDaoProvider);
+  return await dao.getHistoryStats();
 });
 
 // --- Wallet State ---
