@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remindo — Live Penpot Design Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Capriola&family=Spline+Sans+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    :root {
+      --primary: #6D3FA8;
+      --primary-container: #8B5CF6;
+      --secondary: #D9468F;
+      --accent: #F59E0B;
+      --surface: #F3E8FF;
+      --surface-low: #FFF8EB;
+      --surface-nav: #4A2E70;
+      --outline: #4A2E70;
+      --shadow-pixel: 0 4px 0 #4A2E70;
+      --shadow-pixel-sm: 0 2px 0 #4A2E70;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Capriola', sans-serif;
+      background-color: #EBD9FC;
+      background-image: 
+        radial-gradient(#C4A1EC 1.5px, transparent 1.5px),
+        radial-gradient(#C4A1EC 1.5px, #EBD9FC 1.5px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+      color: #2D1B4E;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Pixel RPG Header */
+    header {
+      background: var(--surface-nav);
+      color: #FFF;
+      border-bottom: 3px solid #2A1745;
+      box-shadow: 0 4px 12px rgba(45, 27, 78, 0.25);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent);
+      border: 2px solid #FFF;
+      border-radius: 10px;
+      box-shadow: 0 3px 0 #B45309;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Boogaloo', cursive;
+      font-size: 24px;
+      color: #FFF;
+    }
+
+    .brand-title {
+      font-family: 'Boogaloo', cursive;
+      font-size: 26px;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-pill {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--secondary);
+      color: #FFF;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid #FFF;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pixel-btn {
+      font-family: 'Capriola', sans-serif;
+      font-size: 13px;
+      padding: 7px 14px;
+      background: var(--surface-low);
+      color: var(--outline);
+      border: 2px solid var(--outline);
+      border-radius: 8px;
+      box-shadow: var(--shadow-pixel-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+      text-decoration: none;
+    }
+
+    .pixel-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 0 var(--outline);
+      background: #FFF;
+    }
+
+    .pixel-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 var(--outline);
+    }
+
+    .pixel-btn.primary {
+      background: var(--accent);
+      color: #2D1B4E;
+      font-weight: 700;
+    }
+
+    /* Main Container */
+    .app-layout {
+      flex: 1;
+      display: flex;
+      height: calc(100vh - 66px);
+      position: relative;
+    }
+
+    /* Sidebar Screens List */
+    aside.sidebar {
+      width: 320px;
+      background: #FAF5FF;
+      border-right: 3px solid var(--outline);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 20;
+    }
+
+    .sidebar-header {
+      padding: 16px;
+      background: var(--surface);
+      border-bottom: 2px solid var(--outline);
+      font-family: 'Boogaloo', cursive;
+      font-size: 18px;
+      color: var(--surface-nav);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .screen-group-title {
+      padding: 10px 16px 6px;
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #7E22CE;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      background: #F3E8FF;
+      border-top: 1px dashed #D8B4FE;
+      border-bottom: 1px dashed #D8B4FE;
+      margin-top: 8px;
+    }
+
+    .screen-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      margin: 4px 8px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      font-size: 13px;
+      color: #3B1C5B;
+      transition: all 0.15s ease;
+      background: #FFF;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .screen-item:hover {
+      border-color: var(--outline);
+      background: var(--surface-low);
+      transform: translateX(3px);
+    }
+
+    .screen-item.active {
+      background: var(--primary);
+      color: #FFF;
+      border-color: var(--outline);
+      box-shadow: var(--shadow-pixel-sm);
+      font-weight: 700;
+    }
+
+    .screen-item .screen-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    /* Simulator Canvas */
+    main.viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px;
+      overflow-y: auto;
+      gap: 16px;
+    }
+
+    .viewport-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #FFF;
+      padding: 8px 16px;
+      border: 2px solid var(--outline);
+      border-radius: 12px;
+      box-shadow: var(--shadow-pixel-sm);
+    }
+
+    .scale-btn {
+      padding: 4px 10px;
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--outline);
+      background: #F3E8FF;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .scale-btn.active {
+      background: var(--primary);
+      color: #FFF;
+    }
+
+    .current-screen-badge {
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 12px;
+      color: var(--surface-nav);
+      font-weight: 700;
+      background: var(--surface-low);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--outline);
+    }
+
+    /* Mobile Device Frame */
+    .device-container {
+      position: relative;
+      transition: transform 0.2s ease;
+      transform-origin: top center;
+    }
+
+    .phone-mockup {
+      width: 412px;
+      height: 890px;
+      background: #1A1028;
+      border: 5px solid #2A1745;
+      border-radius: 46px;
+      box-shadow: 
+        0 0 0 4px #6D3FA8,
+        0 20px 50px rgba(45, 27, 78, 0.4),
+        0 4px 0 #2A1745;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Phone Notch / Island */
+    .phone-top-bar {
+      height: 36px;
+      background: #1A1028;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      color: #FFF;
+      font-family: 'Spline Sans Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      z-index: 10;
+      user-select: none;
+    }
+
+    .phone-island {
+      width: 90px;
+      height: 20px;
+      background: #000;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .phone-camera {
+      width: 8px;
+      height: 8px;
+      background: #1E293B;
+      border-radius: 50%;
+      border: 1px solid #334155;
+    }
+
+    .phone-speaker {
+      width: 32px;
+      height: 3px;
+      background: #334155;
+      border-radius: 2px;
+    }
+
+    /* Phone Screen (Iframe Container) */
+    .phone-screen {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      background: #FFF;
+      border: none;
+      display: block;
+      overflow: hidden;
+    }
+
+    /* Phone Bottom Bar */
+    .phone-bottom-bar {
+      height: 20px;
+      background: #1A1028;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .home-indicator {
+      width: 120px;
+      height: 4px;
+      background: #E9D5FF;
+      border-radius: 4px;
+      opacity: 0.6;
+    }
+
+    /* Tooltip Banner */
+    .info-bar {
+      max-width: 650px;
+      background: var(--surface-low);
+      border: 2px solid var(--outline);
+      border-radius: 12px;
+      box-shadow: var(--shadow-pixel-sm);
+      padding: 10px 16px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #2D1B4E;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .info-bar strong {
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">R</div>
+      <div>
+        <div class="brand-title">
+          REMINDO
+          <span class="badge-pill">21 SCREENS LIVE</span>
+        </div>
+        <div style="font-size: 11px; opacity: 0.85; font-family: 'Spline Sans Mono', monospace;">
+          Desain 100% Persis Penpot (Habbit PIxel Tracker)
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <a href="https://github.com/kolweoe/remindo-app/actions" target="_blank" class="pixel-btn primary">
+        <span class="material-symbols-outlined" style="font-size: 18px;">cloud_sync</span>
+        GitHub Actions (Build APK)
+      </a>
+      <button class="pixel-btn" onclick="openCurrentInNewTab()">
+        <span class="material-symbols-outlined" style="font-size: 18px;">open_in_new</span>
+        Buka di Tab Penuh
+      </button>
+      <button class="pixel-btn" onclick="reloadScreen()">
+        <span class="material-symbols-outlined" style="font-size: 18px;">refresh</span>
+        Segarkan
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Sidebar Screen List -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span>DAFTAR 21 LAYAR PENPOT</span>
+        <span id="screen-counter" style="font-size: 13px; color: var(--secondary);">1 / 21</span>
+      </div>
+
+      <div class="screen-group-title">🏰 Beranda & Kamar Hero</div>
+      <div class="screen-item active" onclick="loadScreen('home_kamar_hero/code.html', this, '🏠 Kamar Hero')">
+        <span class="screen-icon">🏠</span>
+        <span>Home — Kamar Hero</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('upgrade_kamar_lv.1_lv.8/code.html', this, '🏰 Upgrade Kamar Lv.1 - 8')">
+        <span class="screen-icon">🏰</span>
+        <span>Upgrade Kamar (Lv. 1 - 8)</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('onboarding_buat_hero_awal/code.html', this, '🌟 Onboarding Hero Awal')">
+        <span class="screen-icon">🌟</span>
+        <span>Onboarding Buat Hero</span>
+      </div>
+
+      <div class="screen-group-title">⚔️ Quests & Produktivitas</div>
+      <div class="screen-item" onclick="loadScreen('quests_quest_board/code.html', this, '📋 Quest Board')">
+        <span class="screen-icon">📋</span>
+        <span>Quests — Quest Board</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('tambah_quest/code.html', this, '➕ Tambah Quest Baru')">
+        <span class="screen-icon">➕</span>
+        <span>Tambah Quest Baru</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('tambah_quest_pengingat/code.html', this, '🔔 Tambah Quest Pengingat')">
+        <span class="screen-icon">🔔</span>
+        <span>Tambah Quest Pengingat</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('quest_timer_fokus/code.html', this, '⏱️ Quest Timer Fokus')">
+        <span class="screen-icon">⏱️</span>
+        <span>Quest Timer Fokus (Pomodoro)</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('riwayat_quest_statistik/code.html', this, '📜 Riwayat & Statistik')">
+        <span class="screen-icon">📜</span>
+        <span>Riwayat Quest & Statistik</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('full_screen_popup_alarm/code.html', this, '🚨 Full Screen Alarm')">
+        <span class="screen-icon">🚨</span>
+        <span>Full Screen Popup Alarm</span>
+      </div>
+
+      <div class="screen-group-title">💰 Dompetku (Finansial)</div>
+      <div class="screen-item" onclick="loadScreen('wallet_dompetku/code.html', this, '💰 Wallet Dompetku')">
+        <span class="screen-icon">💰</span>
+        <span>Wallet — Dompetku</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('transaksi_baru/code.html', this, '💸 Catat Transaksi Baru')">
+        <span class="screen-icon">💸</span>
+        <span>Transaksi Baru (In/Out)</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('peti_tabungan_target/code.html', this, '🏆 Peti Tabungan Target')">
+        <span class="screen-icon">🏆</span>
+        <span>Peti Tabungan Target</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('notifikasi_laporan_keuangan/code.html', this, '📊 Laporan Keuangan')">
+        <span class="screen-icon">📊</span>
+        <span>Notifikasi Laporan Keuangan</span>
+      </div>
+
+      <div class="screen-group-title">🧙 Hero & Pendamping</div>
+      <div class="screen-item" onclick="loadScreen('hero_heroku/code.html', this, '🧙 Profil Hero')">
+        <span class="screen-icon">🧙</span>
+        <span>Hero — Heroku Profile</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('hero_kostum/code.html', this, '👔 Kustomisasi Kostum')">
+        <span class="screen-icon">👔</span>
+        <span>Kustomisasi Kostum</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('hero_statistik/code.html', this, '📈 Statistik Hero')">
+        <span class="screen-icon">📈</span>
+        <span>Hero Statistik (Atribut)</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('pilih_pet/code.html', this, '🐱 Pilih Pet Pendamping')">
+        <span class="screen-icon">🐱</span>
+        <span>Pilih Pet (Tuxedo Cat, dll)</span>
+      </div>
+
+      <div class="screen-group-title">🪄 Floating Stiker & Sistem</div>
+      <div class="screen-item" onclick="loadScreen('popup_stiker_quest_bertimer/code.html', this, '⏱️ Stiker Bertimer')">
+        <span class="screen-icon">⏱️</span>
+        <span>Stiker Quest Bertimer</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('popup_stiker_quest_pengingat/code.html', this, '🔔 Stiker Pengingat')">
+        <span class="screen-icon">🔔</span>
+        <span>Stiker Quest Pengingat</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('popup_stiker_laporan_input_dompetku/code.html', this, '📝 Stiker Dompetku')">
+        <span class="screen-icon">📝</span>
+        <span>Stiker Input Dompetku</span>
+      </div>
+      <div class="screen-item" onclick="loadScreen('pengaturan_utama/code.html', this, '⚙️ Pengaturan Utama')">
+        <span class="screen-icon">⚙️</span>
+        <span>Pengaturan Utama</span>
+      </div>
+      <div style="height: 30px;"></div>
+    </aside>
+
+    <!-- Main Viewport -->
+    <main class="viewport">
+      <div class="viewport-controls">
+        <span style="font-size: 13px; font-weight: 700; color: #4A2E70;">Skala:</span>
+        <button class="scale-btn" onclick="setScale(0.8, this)">80%</button>
+        <button class="scale-btn" onclick="setScale(0.9, this)">90%</button>
+        <button class="scale-btn active" onclick="setScale(1.0, this)">100%</button>
+        <div class="current-screen-badge" id="active-screen-label">
+          🏠 Home — Kamar Hero
+        </div>
+      </div>
+
+      <div class="info-bar">
+        <span class="material-symbols-outlined" style="color: var(--accent); font-size: 24px;">tips_and_updates</span>
+        <span>
+          <strong>Interaktif:</strong> Kamu bisa klik tombol navigasi bawah (Home, Quests, Wallet, Hero) langsung di dalam layar HP di bawah ini untuk berpindah layar, atau klik daftar di sidebar kiri!
+        </span>
+      </div>
+
+      <!-- Phone Frame Mockup -->
+      <div class="device-container" id="device-container">
+        <div class="phone-mockup">
+          <div class="phone-top-bar">
+            <span id="live-clock">09:41</span>
+            <div class="phone-island">
+              <div class="phone-speaker"></div>
+              <div class="phone-camera"></div>
+            </div>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <span class="material-symbols-outlined" style="font-size: 14px;">signal_cellular_alt</span>
+              <span class="material-symbols-outlined" style="font-size: 14px;">wifi</span>
+              <span class="material-symbols-outlined" style="font-size: 14px;">battery_full</span>
+            </div>
+          </div>
+
+          <iframe id="screen-frame" class="phone-screen" src="home_kamar_hero/code.html"></iframe>
+
+          <div class="phone-bottom-bar">
+            <div class="home-indicator"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const iframe = document.getElementById('screen-frame');
+    const labelBadge = document.getElementById('active-screen-label');
+    const device = document.getElementById('device-container');
+
+    // Live clock update
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('live-clock').innerText = `${h}:${m}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Mapping Hash Links to Screens for seamless bottom-nav clicking inside iframe
+    const hashMap = {
+      '#home': { url: 'home_kamar_hero/code.html', label: '🏠 Kamar Hero' },
+      '#quests': { url: 'quests_quest_board/code.html', label: '📋 Quest Board' },
+      '#wallet': { url: 'wallet_dompetku/code.html', label: '💰 Wallet Dompetku' },
+      '#hero': { url: 'hero_heroku/code.html', label: '🧙 Profil Hero' },
+      '#settings': { url: 'pengaturan_utama/code.html', label: '⚙️ Pengaturan Utama' },
+      '#room-upgrade': { url: 'upgrade_kamar_lv.1_lv.8/code.html', label: '🏰 Upgrade Kamar Lv.1 - 8' },
+      '#hero-costume': { url: 'hero_kostum/code.html', label: '👔 Kustomisasi Kostum' },
+      '#hero-stats': { url: 'hero_statistik/code.html', label: '📈 Hero Statistik' },
+      '#quest-history': { url: 'riwayat_quest_statistik/code.html', label: '📜 Riwayat & Statistik' },
+      '#timed-quest': { url: 'quest_timer_fokus/code.html', label: '⏱️ Quest Timer Fokus' },
+      '#add-transaction': { url: 'transaksi_baru/code.html', label: '💸 Transaksi Baru' },
+      '#savings-chest': { url: 'peti_tabungan_target/code.html', label: '🏆 Peti Tabungan Target' },
+      '#wallet-notification': { url: 'notifikasi_laporan_keuangan/code.html', label: '📊 Laporan Keuangan' },
+      '#floating-popup-reminder': { url: 'popup_stiker_quest_pengingat/code.html', label: '🔔 Stiker Pengingat' },
+      '#floating-popup-timed': { url: 'popup_stiker_quest_bertimer/code.html', label: '⏱️ Stiker Bertimer' },
+      '#floating-popup-wallet': { url: 'popup_stiker_laporan_input_dompetku/code.html', label: '📝 Stiker Dompetku' }
+    };
+
+    function loadScreen(url, element, label) {
+      iframe.src = url;
+      labelBadge.innerText = label || url;
+
+      if (element) {
+        document.querySelectorAll('.screen-item').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        // Highlight corresponding sidebar element by url
+        document.querySelectorAll('.screen-item').forEach(el => {
+          if (el.getAttribute('onclick') && el.getAttribute('onclick').includes(url)) {
+            document.querySelectorAll('.screen-item').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }
+        });
+      }
+    }
+
+    function setScale(scale, btn) {
+      device.style.transform = `scale(${scale})`;
+      document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function openCurrentInNewTab() {
+      window.open(iframe.src, '_blank');
+    }
+
+    function reloadScreen() {
+      iframe.contentWindow.location.reload();
+    }
+
+    // Attach click interceptor inside iframe once loaded
+    iframe.addEventListener('load', () => {
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        if (!doc) return;
+
+        // Find all links inside iframe
+        const links = doc.querySelectorAll('a[href^="#"]');
+        links.forEach(a => {
+          a.addEventListener('click', (e) => {
+            const hash = a.getAttribute('href');
+            if (hashMap[hash]) {
+              e.preventDefault();
+              e.stopPropagation();
+              loadScreen(hashMap[hash].url, null, hashMap[hash].label);
+            }
+          });
+        });
+
+        // Hide browser scrollbars inside phone screen for pure native app look
+        const style = doc.createElement('style');
+        style.textContent = `
+          ::-webkit-scrollbar { display: none; }
+          * { -ms-overflow-style: none; scrollbar-width: none; }
+        `;
+        doc.head.appendChild(style);
+      } catch (err) {
+        console.warn('Cross-origin restriction or frame access error:', err);
+      }
+    });
+  </script>
+</body>
+</html>
